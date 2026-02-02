@@ -1,6 +1,12 @@
+pub mod auth;
+mod config;
+mod error;
+pub mod utils;
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let mut builder = tauri::Builder::default()
+        .invoke_handler(tauri::generate_handler![auth::save_auth_token])
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_http::init());
 
