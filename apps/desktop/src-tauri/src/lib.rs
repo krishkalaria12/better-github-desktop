@@ -12,7 +12,8 @@ pub fn run() {
             auth::get_auth_token
         ])
         .plugin(tauri_plugin_os::init())
-        .plugin(tauri_plugin_http::init());
+        .plugin(tauri_plugin_http::init())
+        .plugin(tauri_plugin_shell::init());
 
     #[cfg(desktop)]
     {

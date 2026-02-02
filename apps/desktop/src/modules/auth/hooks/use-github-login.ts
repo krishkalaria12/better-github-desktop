@@ -1,6 +1,6 @@
-import { api } from "@/lib/axios";
 import { env } from "@/lib/env";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { fetch } from "@tauri-apps/plugin-http";
 import { getDeviceCode } from "../api/github-login";
 
 interface TokenResponse {
@@ -25,13 +25,26 @@ export function usePollToken(deviceCode: string | undefined, interval: number = 
     queryFn: async () => {
       if (!deviceCode) throw new Error("No device code");
 
-      const response = await api.post<TokenResponse>("https://github.com/login/oauth/access_token", {
+      const body = new URLSearchParams({
         client_id: env.VITE_GITHUB_CLIENT_ID,
         device_code: deviceCode,
         grant_type: "urn:ietf:params:oauth:grant-type:device_code",
+      }).toString();
+
+      const response = await fetch("https://github.com/login/oauth/access_token", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body,
       });
 
-      return response.data;
+      if (!response.ok && response.status !== 400) {
+        throw new Error(`Failed to poll token (${response.status})`);
+      }
+
+      return (await response.json()) as TokenResponse;
     },
     enabled: !!deviceCode,
     refetchInterval: (query) => {

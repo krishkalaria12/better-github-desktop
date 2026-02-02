@@ -2,6 +2,8 @@ import { RouterProvider, createRouter } from "@tanstack/react-router";
 import ReactDOM from "react-dom/client";
 
 import Loader from "./components/loader";
+import { AuthProvider } from "./providers/auth-provider";
+import { QueryProvider } from "./providers/query-provider";
 import { routeTree } from "./routeTree.gen";
 
 const router = createRouter({
@@ -25,5 +27,11 @@ if (!rootElement) {
 
 if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
-  root.render(<RouterProvider router={router} />);
+  root.render(
+    <QueryProvider>
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
+    </QueryProvider>
+  );
 }

@@ -1,17 +1,11 @@
-import { useAuthStore } from "@/store/github-client";
-import { useNavigate } from "@tanstack/react-router";
+import { ProtectedRoute } from "@/components/protected-route";
 
 export function Dashboard() {
-  const navigate = useNavigate();
-  const { token } = useAuthStore();
-
-  if (!token) {
-    navigate("/login");
-  }
-
   return (
-    <div>
-      <h1>Dashboard</h1>
-    </div>
+    <ProtectedRoute>
+      <div className="flex h-full items-center justify-center">
+        <h1 className="text-2xl font-bold">Dashboard</h1>
+      </div>
+    </ProtectedRoute>
   );
 }

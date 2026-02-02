@@ -22,17 +22,18 @@ export const useAuthStore = create<AuthState>((set) => ({
       const token = await retrieveMyToken();
       if (token) {
         set({ token, isAuthenticated: true, isLoading: false });
+        return;
       }
+      set({ token: null, isAuthenticated: false, isLoading: false });
     } catch {
-      console.log("No session found in keyring");
       set({ token: null, isAuthenticated: false, isLoading: false });
     }
   },
 
   setToken: async (newToken: string) => {
     try {
-      await secureMyToken(newToken);
       set({ token: newToken, isAuthenticated: true });
+      await secureMyToken(newToken);
     } catch (err) {
       console.error("Failed to save token to system", err);
     }
