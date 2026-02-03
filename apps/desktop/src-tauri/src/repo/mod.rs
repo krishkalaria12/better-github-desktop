@@ -12,7 +12,7 @@ use tauri::command;
 use tauri::AppHandle;
 use tauri_plugin_store::StoreExt;
 
-fn save_repos_in_store(folder_path: String, app: AppHandle) -> Result<()> {
+pub(crate) fn save_repos_in_store(folder_path: String, app: AppHandle) -> Result<()> {
     let store = app.store(&config().STORE_NAME)?;
 
     let mut repos = store.get(&config().STORE_REPOS_KEY).unwrap_or(json!([]));

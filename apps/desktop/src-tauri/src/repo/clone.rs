@@ -7,6 +7,7 @@ use git2::{build::RepoBuilder, FetchOptions, RemoteCallbacks};
 use serde::Serialize;
 use tauri::{command, AppHandle, Emitter};
 
+use crate::repo::save_repos_in_store;
 use crate::repo::error::{Error, Result};
 
 #[derive(Clone, Serialize)]
@@ -53,7 +54,10 @@ pub async fn clone_repo(url: String, file_path: String, app: AppHandle) -> Resul
     builder.fetch_options(fetch_options);
 
     match builder.clone(&url, Path::new(&file_path)) {
-        Ok(_) => Ok(()),
+        Ok(_) => {
+            save_repos_in_store(file_path, app)?;
+            Ok(())
+        }
         Err(e) => return Err(Error::from(e)),
     }
 }
