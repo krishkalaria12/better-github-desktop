@@ -6,7 +6,7 @@ import { toast } from "sonner";
 
 export function Dashboard() {
   const { mutate: checkGitRepo } = useCheckGitFolder();
-  const { setLastOpenedRepo } = useAuthStore();
+  const { setLastOpenedRepo, last_opened_repo } = useAuthStore();
 
   const openFolderSelector = async () => {
     const file = await open({
@@ -29,6 +29,10 @@ export function Dashboard() {
   }
 
   return (
-    <StartWithoutRepo openfolder={openFolderSelector} />
+    !last_opened_repo ? (
+      <StartWithoutRepo openfolder={openFolderSelector} />
+    ) : (
+      <div>Dashboard: {last_opened_repo}</div>
+    )
   );
 }
