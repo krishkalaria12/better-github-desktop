@@ -1,6 +1,6 @@
 export function QuickFlowCard() {
   return (
-    <div className="rounded-3xl border border-black/10 bg-[#f7f0e5] p-6">
+    <div className="border border-black/10 bg-[#f7f0e5] px-6 py-6">
       <div className="text-xs uppercase tracking-[0.3em] text-[#7a6f62]">quick flow</div>
       <div className="mt-4 grid gap-4 text-sm text-[#3b352d]">
         <FlowStep index="01">

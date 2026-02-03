@@ -1,6 +1,6 @@
 export function StatusSnapshot() {
   return (
-    <div className="flex flex-col justify-between gap-6 rounded-3xl border border-black/10 bg-white/80 p-6">
+    <div className="flex flex-col justify-between gap-6 border border-black/10 bg-white/60 px-6 py-6">
       <div>
         <div className="text-xs uppercase tracking-[0.3em] text-[#7a6f62]">status snapshot</div>
         <div className="mt-4 grid gap-3">

@@ -9,5 +9,5 @@ export async function getLastOpenedRepo(): Promise<string> {
 }
 
 export async function cloneRepo(url: string, filePath: string): Promise<void> {
-  await invoke("clone_repo", { url, file_path: filePath });
+  await invoke("clone_repo", { url, filePath });
 }

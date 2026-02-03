@@ -29,24 +29,25 @@ export function ClonePanel({
     ? `Cloning ${selectedRepo.full_name}`
     : "Pick a repo on the left or paste a URL.";
 
-  const repoName = selectedRepo?.name ?? repoUrl.trim().split("/").pop()?.replace(/\.git$/, "") ?? "";
+  const repoName =
+    selectedRepo?.name ?? repoUrl.trim().split("/").pop()?.replace(/\.git$/, "") ?? "";
 
   const canClone = !!repoUrl.trim() && !!cloneDestination && !isCloning;
 
   return (
-    <div className="rounded-3xl border border-black/10 bg-white/80 p-6 shadow-sm">
+    <div className="flex h-[560px] flex-col border border-black/10 bg-white/60 px-6 py-5 overflow-hidden">
       <div className="flex items-center justify-between">
         <div>
           <div className="text-xs uppercase tracking-[0.3em] text-[#7a6f62]">clone repo</div>
-          <div className="mt-2 text-lg font-semibold text-[#1d1a16]">Review and confirm</div>
+          <div className="mt-2 text-lg font-semibold text-[#1d1a16]">Destination + progress</div>
         </div>
-        <span className="rounded-full bg-[#fff1de] px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-[#b45309]">
+        <span className="border border-[#b45309]/30 bg-[#fff1de] px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-[#b45309]">
           remote
         </span>
       </div>
 
-      <div className="mt-5 flex flex-col gap-4 text-sm text-[#6a6157]">
-        <div className="rounded-2xl border border-black/10 bg-white px-4 py-3 text-xs uppercase tracking-[0.24em] text-[#7a6f62]">
+      <div className="mt-5 flex min-h-0 flex-1 flex-col gap-4 text-sm text-[#6a6157]">
+        <div className="border border-black/10 bg-white px-4 py-3 text-xs uppercase tracking-[0.24em] text-[#7a6f62]">
           {helperText}
         </div>
 
@@ -56,7 +57,7 @@ export function ClonePanel({
             value={repoUrl}
             onChange={(event) => onUrlChange(event.target.value)}
             placeholder="https://github.com/owner/repo.git"
-            className="h-11 rounded-full border-black/10 bg-white px-4 text-sm"
+            className="h-11 border-black/10 bg-white px-4 text-sm leading-none"
           />
         </div>
 
@@ -69,18 +70,18 @@ export function ClonePanel({
               value={destinationFolder}
               placeholder={repoName ? `Choose a folder for ${repoName}` : "Choose a folder"}
               readOnly
-              className="h-11 flex-1 rounded-full border-black/10 bg-white px-4 text-sm"
+              className="h-11 flex-1 border-black/10 bg-white px-4 text-sm leading-none"
             />
             <Button
               variant="outline"
               onClick={onPickDestination}
               disabled={isCloning}
-              className="h-11 rounded-full border-black/10 px-5"
+              className="h-11 border-black/10 px-5"
             >
               Browse
             </Button>
           </div>
-          <div className="rounded-2xl border border-black/10 bg-white px-4 py-3 text-xs uppercase tracking-[0.24em] text-[#7a6f62]">
+          <div className="border border-black/10 bg-white px-4 py-3 text-xs tracking-[0.08em] text-[#7a6f62]">
             {cloneDestination
               ? `clone path: ${cloneDestination}`
               : repoName
@@ -90,7 +91,7 @@ export function ClonePanel({
         </div>
 
         {isCloning || progressValue > 0 ? (
-          <div className="rounded-2xl border border-black/10 bg-white px-4 py-4">
+          <div className="border border-black/10 bg-white px-4 py-4">
             <div className="flex items-center justify-between text-xs uppercase tracking-[0.24em] text-[#7a6f62]">
               <span>{progressPhase || "Cloning"}</span>
               <span>{progressValue}%</span>
@@ -104,13 +105,15 @@ export function ClonePanel({
           </div>
         ) : null}
 
-        <Button
-          onClick={onClone}
-          disabled={!canClone}
-          className="h-11 rounded-full bg-[#1f2937] text-white hover:bg-[#111827]"
-        >
-          {isCloning ? "Cloning..." : "Clone remote repo"}
-        </Button>
+        <div className="mt-auto">
+          <Button
+            onClick={onClone}
+            disabled={!canClone}
+            className="h-11 w-full bg-[#1f2937] text-white hover:bg-[#111827]"
+          >
+            {isCloning ? "Cloning..." : "Clone remote repo"}
+          </Button>
+        </div>
       </div>
     </div>
   );

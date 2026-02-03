@@ -13,10 +13,10 @@ export function RepoListItem({
     <button
       type="button"
       onClick={onSelect}
-      className={`flex w-full items-center justify-between gap-4 rounded-2xl border px-4 py-3 text-left transition ${
+      className={`flex w-full items-center justify-between gap-4 border px-3 py-3 text-left transition ${
         isSelected
-          ? "border-[#0f766e] bg-[#e7f3f0]"
-          : "border-black/10 bg-white hover:-translate-y-0.5 hover:border-black/20"
+          ? "border-l-4 border-l-[#0f766e] border-[#0f766e]/40 bg-[#e7f3f0]"
+          : "border-black/10 bg-white hover:bg-[#f5f0e7]"
       }`}
     >
       <div className="flex min-w-0 items-center gap-3">
@@ -34,12 +34,12 @@ export function RepoListItem({
           </div>
         </div>
       </div>
-      <div className="flex flex-col items-end gap-2 text-xs text-[#6a6157]">
-        <span className="rounded-full border border-black/10 bg-white px-2.5 py-1 uppercase tracking-[0.2em]">
-          {repo.private ? "private" : "public"}
-        </span>
-        <span>{repo.language ?? "Unknown"}</span>
-      </div>
+        <div className="flex flex-col items-end gap-2 text-xs text-[#6a6157]">
+          <span className="border border-black/10 bg-white px-2.5 py-1 uppercase tracking-[0.2em]">
+            {repo.private ? "private" : "public"}
+          </span>
+          <span>{repo.language ?? "Unknown"}</span>
+        </div>
     </button>
   );
 }

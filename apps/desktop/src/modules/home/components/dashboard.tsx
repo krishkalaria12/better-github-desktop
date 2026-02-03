@@ -34,8 +34,27 @@ export function Dashboard() {
 
     try {
       await cloneRepo(payload.url, payload.destination);
+      checkGitRepo(payload.destination, {
+        onSuccess: (data) => {
+          if (data) {
+            setLastOpenedRepo();
+            toast.success("Repository downloaded.");
+          } else {
+            toast.error("Clone completed, but repo validation failed.");
+          }
+        },
+        onError: () => {
+          toast.error("Clone completed, but repo validation failed.");
+        },
+      });
     } catch (_error) {
-      toast.error("Failed to clone repository. Please try again.");
+      const message =
+        _error instanceof Error
+          ? _error.message
+          : typeof _error === "string"
+            ? _error
+            : "Failed to clone repository. Please try again.";
+      toast.error(message);
     }
   };
 

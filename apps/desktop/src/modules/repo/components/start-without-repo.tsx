@@ -4,10 +4,8 @@ import { openFolderSelector } from "@/utils/open-folder";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect, useMemo, useState } from "react";
 import { ClonePanel } from "./clone-panel";
-import { QuickFlowCard } from "./flow-component";
 import { LocalRepoCard } from "./local-repo-card";
 import { RepoPicker } from "./repo-picker";
-import { StatusSnapshot } from "./status-component";
 
 interface StartWithoutRepoProps {
   openLocal: () => Promise<void>;
@@ -20,6 +18,7 @@ interface StartWithoutRepoProps {
 
 export function StartWithoutRepo({ openLocal, cloneGitRepo }: StartWithoutRepoProps) {
   const { isLoading, data: repos } = useGetGithubRepos();
+  const [mode, setMode] = useState<"clone" | "local">("clone");
   const [selectedRepo, setSelectedRepo] = useState<GithubRepo | null>(null);
   const [repoUrl, setRepoUrl] = useState("");
   const [destinationFolder, setDestinationFolder] = useState("");
@@ -42,6 +41,8 @@ export function StartWithoutRepo({ openLocal, cloneGitRepo }: StartWithoutRepoPr
         url: repoUrl.trim(),
         destination: cloneDestination,
       });
+      setProgressValue(100);
+      setProgressPhase("Downloaded");
     } finally {
       setIsCloning(false);
     }
@@ -76,7 +77,12 @@ export function StartWithoutRepo({ openLocal, cloneGitRepo }: StartWithoutRepoPr
     if (!destinationFolder || !repoName) {
       return "";
     }
-    return destinationFolder.replace(/\/$/, "") + "/" + repoName;
+    const normalizedFolder = destinationFolder.replace(/[\\/]+$/, "");
+    const lastSegment = normalizedFolder.split(/[\\/]/).filter(Boolean).pop() ?? "";
+    if (lastSegment === repoName) {
+      return normalizedFolder;
+    }
+    return normalizedFolder + "/" + repoName;
   }, [destinationFolder, repoName]);
 
   useEffect(() => {
@@ -91,63 +97,99 @@ export function StartWithoutRepo({ openLocal, cloneGitRepo }: StartWithoutRepoPr
   }, []);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#f7f3ea] text-[#1a1814]">
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-32 left-1/2 h-105 w-105 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(21,128,106,0.18)_0%,rgba(21,128,106,0)_70%)] blur-2xl" />
-        <div className="absolute -right-20 top-24 h-85 w-85 rounded-full bg-[radial-gradient(circle,rgba(248,200,120,0.32)_0%,rgba(248,200,120,0)_70%)] blur-2xl" />
-        <div className="absolute bottom-16 left-10 h-55 w-55 rounded-full bg-[radial-gradient(circle,rgba(15,118,110,0.22)_0%,rgba(15,118,110,0)_70%)] blur-2xl animate-float-slow" />
-      </div>
-
-      <div className="relative mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center px-6 py-14">
-        <div className="w-full rounded-[36px] border border-black/10 bg-white/70 p-8 shadow-[0_30px_80px_-60px_rgba(15,23,42,0.6)] backdrop-blur">
-          <div className="flex flex-col gap-10">
-            <div className="flex flex-col gap-6 animate-rise-1">
-              <div className="flex items-center gap-3 text-[11px] uppercase tracking-[0.4em] text-[#5c5246]">
-                <span className="h-2 w-2 rounded-full bg-[#0f766e]" />
-                git workspace setup
-              </div>
-              <div className="flex flex-col gap-4">
-                <h1 className="text-4xl font-(--font-serif)] leading-tight tracking-tight md:text-5xl">
-                  Start from a local repo or clone one from anywhere.
-                </h1>
-                <p className="max-w-2xl text-base text-[#6b6257]">
-                  Select a repository with confidence. Preview the details, confirm your
-                  destination, and keep the workflow focused on what matters next.
-                </p>
-              </div>
+    <div className="min-h-screen bg-[#f6f1e8] text-[#1a1814]">
+      <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-10 py-10">
+        <div className="flex items-center justify-between border-b border-black/10 pb-6">
+          <div>
+            <div className="text-[11px] uppercase tracking-[0.4em] text-[#5c5246]">
+              git workspace setup
             </div>
-
-            <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] animate-rise-2">
-              <RepoPicker
-                repos={repos ?? []}
-                isLoading={isLoading}
-                selectedRepo={selectedRepo}
-                onSelect={handleSelectRepo}
-              />
-
-              <div className="flex flex-col gap-6">
-                <ClonePanel
-                  selectedRepo={selectedRepo}
-                  repoUrl={repoUrl}
-                  onUrlChange={setRepoUrl}
-                  onClone={handleClone}
-                  onPickDestination={handlePickDestination}
-                  destinationFolder={destinationFolder}
-                  cloneDestination={cloneDestination}
-                  isCloning={isCloning}
-                  progressPhase={progressPhase}
-                  progressValue={progressValue}
-                />
-                <LocalRepoCard onOpenLocal={openLocal} />
-              </div>
+            <div className="mt-3 text-3xl font-(--font-serif) tracking-tight">
+              Connect a repository
             </div>
-
-            <div className="grid gap-6 md:grid-cols-[1.2fr_0.8fr] animate-rise-3">
-              <QuickFlowCard />
-              <StatusSnapshot />
+            <p className="mt-2 max-w-2xl text-sm text-[#6b6257]">
+              Pick a repo, confirm the destination folder, and stay focused in a desktop-first
+              layout.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="inline-flex border border-black/15 bg-white/70">
+              <button
+                type="button"
+                onClick={() => setMode("clone")}
+                className={`px-4 py-2 text-xs uppercase tracking-[0.24em] transition ${
+                  mode === "clone"
+                    ? "bg-[#1f2937] text-white"
+                    : "text-[#6b6257] hover:text-[#1f2937]"
+                }`}
+              >
+                clone repo
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("local")}
+                className={`px-4 py-2 text-xs uppercase tracking-[0.24em] transition ${
+                  mode === "local"
+                    ? "bg-[#0f766e] text-white"
+                    : "text-[#6b6257] hover:text-[#1f2937]"
+                }`}
+              >
+                open local
+              </button>
             </div>
           </div>
         </div>
+
+        {mode === "clone" ? (
+          <div className="mt-8 grid flex-1 grid-cols-[minmax(0,1fr)_380px] gap-8">
+            <RepoPicker
+              repos={repos ?? []}
+              isLoading={isLoading}
+              selectedRepo={selectedRepo}
+              onSelect={handleSelectRepo}
+            />
+            <ClonePanel
+              selectedRepo={selectedRepo}
+              repoUrl={repoUrl}
+              onUrlChange={setRepoUrl}
+              onClone={handleClone}
+              onPickDestination={handlePickDestination}
+              destinationFolder={destinationFolder}
+              cloneDestination={cloneDestination}
+              isCloning={isCloning}
+              progressPhase={progressPhase}
+              progressValue={progressValue}
+            />
+          </div>
+        ) : (
+          <div className="mt-8 grid grid-cols-[minmax(0,1fr)_380px] items-start gap-8">
+            <div className="border border-black/10 bg-white/60 px-8 py-8">
+              <div className="text-xs uppercase tracking-[0.3em] text-[#7a6f62]">
+                local workspace
+              </div>
+              <div className="mt-3 text-2xl font-semibold text-[#1d1a16]">
+                Open a repository already on this machine.
+              </div>
+              <p className="mt-4 max-w-xl text-sm text-[#6a6157]">
+                Choose a folder, validate that it is a Git repository, and jump straight into
+                your workspace with the latest context.
+              </p>
+              <div className="mt-6">
+                <LocalRepoCard onOpenLocal={openLocal} />
+              </div>
+            </div>
+            <div className="border border-black/10 bg-white/60 px-6 py-6">
+              <div className="text-xs uppercase tracking-[0.3em] text-[#7a6f62]">
+                tips
+              </div>
+              <ul className="mt-4 space-y-3 text-sm text-[#3b352d]">
+                <li>Keep clones in a dedicated workspace folder.</li>
+                <li>Use short repo names for quicker navigation.</li>
+                <li>Switch back to Clone to pull from GitHub.</li>
+              </ul>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
