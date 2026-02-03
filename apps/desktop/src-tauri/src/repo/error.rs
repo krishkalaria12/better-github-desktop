@@ -9,6 +9,7 @@ pub enum Error {
     TauriPluginStore(Arc<tauri_plugin_store::Error>),
     StoreError(String),
     SerdeJson(serde_json::Error),
+    Git(Arc<git2::Error>),
 }
 
 impl Serialize for Error {
@@ -25,6 +26,7 @@ impl Serialize for Error {
 crate::impl_froms! {
     TauriPluginStore(tauri_plugin_store::Error, arc),
     SerdeJson(serde_json::Error),
+    Git(git2::Error, arc),
 }
 
 // endregion: --- Froms
@@ -36,6 +38,7 @@ impl core::fmt::Display for Error {
             Self::TauriPluginStore(e) => write!(fmt, "{e}"),
             Self::StoreError(e) => write!(fmt, "{e}"),
             Self::SerdeJson(e) => write!(fmt, "{e}"),
+            Self::Git(e) => write!(fmt, "{e}"),
         }
     }
 }

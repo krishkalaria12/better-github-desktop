@@ -1,20 +1,18 @@
+import { cloneRepo } from "@/modules/repo/api/tauri-repo-api";
 import { StartWithoutRepo } from "@/modules/repo/components/start-without-repo";
 import { useCheckGitFolder } from "@/modules/repo/hooks/use-tauri-repo";
 import { useAuthStore } from "@/store/github-client";
-import { open } from '@tauri-apps/plugin-dialog';
+import { openFolderSelector } from "@/utils/open-folder";
 import { toast } from "sonner";
 
 export function Dashboard() {
   const { mutate: checkGitRepo } = useCheckGitFolder();
   const { setLastOpenedRepo, last_opened_repo } = useAuthStore();
 
-  const openFolderSelector = async () => {
-    const file = await open({
-      multiple: false,
-      directory: true,
-    });
+  const handleCheckGitRepoLocal = async () => {
+    const folder = await openFolderSelector();
 
-    checkGitRepo(file, {
+    checkGitRepo(folder, {
       onSuccess: (data) => {
         if (data) {
           setLastOpenedRepo()
@@ -28,9 +26,22 @@ export function Dashboard() {
     });
   }
 
+  const handleCloneGitRepo = async (payload?: { url?: string; destination?: string }) => {
+    if (!payload?.url || !payload?.destination) {
+      toast.error("Please provide a repo URL and destination folder.");
+      return;
+    }
+
+    try {
+      await cloneRepo(payload.url, payload.destination);
+    } catch (_error) {
+      toast.error("Failed to clone repository. Please try again.");
+    }
+  };
+
   return (
     !last_opened_repo ? (
-      <StartWithoutRepo openfolder={openFolderSelector} />
+      <StartWithoutRepo cloneGitRepo={handleCloneGitRepo} openLocal={handleCheckGitRepoLocal} />
     ) : (
       <div>Dashboard: {last_opened_repo}</div>
     )

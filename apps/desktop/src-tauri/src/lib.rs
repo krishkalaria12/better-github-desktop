@@ -14,7 +14,8 @@ pub fn run() {
             auth::delete_auth_token,
             auth::get_auth_token,
             repo::check_is_git_repo,
-            repo::get_last_opened_repo
+            repo::get_last_opened_repo,
+            repo::clone::clone_repo
         ])
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_http::init())

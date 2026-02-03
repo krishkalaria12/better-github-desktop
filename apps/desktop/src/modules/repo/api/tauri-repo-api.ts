@@ -7,3 +7,7 @@ export async function checkIsGitRepo(path: string | null): Promise<boolean> {
 export async function getLastOpenedRepo(): Promise<string> {
   return await invoke("get_last_opened_repo");
 }
+
+export async function cloneRepo(url: string, filePath: string): Promise<void> {
+  await invoke("clone_repo", { url, file_path: filePath });
+}
