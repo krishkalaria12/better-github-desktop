@@ -16,6 +16,9 @@ pub struct Config {
     // -- Web
     pub SERVICE_NAME: &'static str,
     pub USER_KEY: &'static str,
+    pub STORE_NAME: &'static str,
+    pub STORE_LAST_OPENED_REPOS_KEY: &'static str,
+    pub STORE_REPOS_KEY: &'static str,
 }
 
 impl Config {
@@ -23,6 +26,9 @@ impl Config {
         Ok(Config {
             SERVICE_NAME: "better-github-desktop",
             USER_KEY: "session-token",
+            STORE_NAME: "settings.json",
+            STORE_LAST_OPENED_REPOS_KEY: "last_opened_repo",
+            STORE_REPOS_KEY: "repos",
         })
     }
 }

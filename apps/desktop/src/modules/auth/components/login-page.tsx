@@ -4,12 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from '@tanstack/react-router';
 import { open } from "@tauri-apps/plugin-shell";
-import { CheckCircle2, Copy, Github, Loader2, ShieldCheck, Terminal, Zap } from "lucide-react";
+import { CheckCircle2, Copy, Github, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { useAuthStore } from "@/store/github-client";
 import { useDeviceCode, usePollToken } from "../hooks/use-github-login";
-import { FeatureRow } from "./feature-row";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -76,9 +75,9 @@ export default function LoginPage() {
   return (
     <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-[#0b1117] px-6 py-12 text-slate-200">
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-slate-800/40 via-[#0b1117] to-[#0b1117]" />
-        <div className="absolute right-[-20%] top-[-30%] h-[420px] w-[420px] rounded-full bg-gradient-to-br from-blue-500/20 via-cyan-400/10 to-transparent blur-3xl" />
-        <div className="absolute left-[-10%] bottom-[-25%] h-[320px] w-[320px] rounded-full bg-gradient-to-br from-emerald-400/15 via-blue-500/10 to-transparent blur-3xl" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,var(--tw-gradient-stops))] from-slate-800/40 via-[#0b1117] to-[#0b1117]" />
+        <div className="absolute right-[-20%] top-[-30%] h-105 w-105 rounded-full bg-linear-to-br from-blue-500/20 via-cyan-400/10 to-transparent blur-3xl" />
+        <div className="absolute left-[-10%] bottom-[-25%] h-80 w-80 rounded-full bg-linear-to-br from-emerald-400/15 via-blue-500/10 to-transparent blur-3xl" />
       </div>
 
       <div className="relative z-10 w-full max-w-lg">
@@ -93,7 +92,7 @@ export default function LoginPage() {
         </div>
 
         <Card className="relative overflow-hidden border-[#222a36] bg-[#121824] shadow-[0_25px_70px_-45px_rgba(15,23,42,0.9)]">
-          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-cyan-400 via-blue-500 to-slate-200" />
+          <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-cyan-400 via-blue-500 to-slate-200" />
           <CardHeader className="space-y-2 pb-4">
             <CardTitle className="text-2xl text-white">Continue with GitHub</CardTitle>
             <CardDescription className="text-slate-400">
