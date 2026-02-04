@@ -1,20 +1,26 @@
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 export function StatusSnapshot() {
   return (
-    <div className="flex flex-col justify-between gap-6 border border-black/10 bg-white/60 px-6 py-6">
-      <div>
-        <div className="text-xs uppercase tracking-[0.3em] text-[#7a6f62]">status snapshot</div>
-        <div className="mt-4 grid gap-3">
+    <Card>
+      <CardHeader>
+        <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground">status snapshot</p>
+        <CardTitle className="mt-2 text-lg">System readiness</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-5">
+        <div className="grid gap-3">
           <StatusRow label="auth status" value="verified" accent />
           <StatusRow label="clone path" value="ready" accent={false} />
           <StatusRow label="sync mode" value="optimized" accent={false} />
         </div>
-      </div>
-      <div className="flex flex-wrap gap-2 text-xs uppercase tracking-[0.24em] text-[#7a6f62]">
-        <span className="rounded-full border border-black/10 bg-white px-3 py-1">secure auth</span>
-        <span className="rounded-full border border-black/10 bg-white px-3 py-1">fast sync</span>
-        <span className="rounded-full border border-black/10 bg-white px-3 py-1">offline ready</span>
-      </div>
-    </div>
+        <div className="flex flex-wrap gap-2 text-xs">
+          <Badge variant="outline">secure auth</Badge>
+          <Badge variant="outline">fast sync</Badge>
+          <Badge variant="outline">offline ready</Badge>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -28,9 +34,9 @@ export function StatusRow({
   accent: boolean;
 }) {
   return (
-    <div className="flex items-center justify-between rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm">
-      <span className="text-[#2e2a25]">{label}</span>
-      <span className={accent ? "text-[#0f766e]" : "text-[#6b6257]"}>{value}</span>
+    <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/30 px-4 py-3 text-sm">
+      <span className="text-foreground">{label}</span>
+      <span className={accent ? "text-primary" : "text-muted-foreground"}>{value}</span>
     </div>
   );
 }

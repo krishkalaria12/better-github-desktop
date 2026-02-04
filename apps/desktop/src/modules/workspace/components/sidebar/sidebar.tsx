@@ -15,7 +15,7 @@ export function WorkspaceSidebar({ repoLabel, repoPath, selectedPath, onSelectPa
   const changes = data ?? [];
 
   return (
-    <aside className="flex min-h-screen w-[320px] shrink-0 flex-col border-r border-black/10 bg-white/80 px-6 py-8">
+    <aside className="flex min-h-screen w-[320px] shrink-0 flex-col border-r border-border/60 bg-card/80 px-6 py-8 backdrop-blur">
       <SidebarHeader repoLabel={repoLabel} repoPath={repoPath} />
       <div className="mt-8 flex flex-col gap-6">
         <BranchSummary branchName="main" changes={changes} />

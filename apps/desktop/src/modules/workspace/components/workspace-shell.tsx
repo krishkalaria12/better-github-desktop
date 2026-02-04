@@ -20,8 +20,9 @@ export function WorkspaceShell({ repoPath }: WorkspaceShellProps) {
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
 
   return (
-    <div className="min-h-screen bg-[#f6f1e8] text-[#1a1814]">
-      <div className="flex min-h-screen w-full">
+    <div className="relative min-h-screen bg-background text-foreground">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-primary/5 via-background to-background" />
+      <div className="relative flex min-h-screen w-full">
         <WorkspaceSidebar
           repoLabel={repoLabel}
           repoPath={repoPath}

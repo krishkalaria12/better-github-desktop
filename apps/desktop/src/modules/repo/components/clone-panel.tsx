@@ -1,5 +1,9 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 import type { GithubRepo } from "../api/github-repo-api";
 
 export function ClonePanel({
@@ -35,53 +39,52 @@ export function ClonePanel({
   const canClone = !!repoUrl.trim() && !!cloneDestination && !isCloning;
 
   return (
-    <div className="flex h-[560px] flex-col border border-black/10 bg-white/60 px-6 py-5 overflow-hidden">
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="text-xs uppercase tracking-[0.3em] text-[#7a6f62]">clone repo</div>
-          <div className="mt-2 text-lg font-semibold text-[#1d1a16]">Destination + progress</div>
+    <Card className="flex h-[620px] flex-col">
+      <CardHeader className="space-y-2">
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-lg">Destination + progress</CardTitle>
+            <p className="text-sm text-muted-foreground">Review the clone details before you sync.</p>
+          </div>
+          <Badge variant="outline">remote</Badge>
         </div>
-        <span className="border border-[#b45309]/30 bg-[#fff1de] px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-[#b45309]">
-          remote
-        </span>
-      </div>
+      </CardHeader>
 
-      <div className="mt-5 flex min-h-0 flex-1 flex-col gap-4 text-sm text-[#6a6157]">
-        <div className="border border-black/10 bg-white px-4 py-3 text-xs uppercase tracking-[0.24em] text-[#7a6f62]">
+      <CardContent className="flex min-h-0 flex-1 flex-col gap-5 text-sm">
+        <div className="rounded-lg border border-border/60 bg-muted/30 px-4 py-3 text-xs uppercase tracking-[0.18em] text-muted-foreground">
           {helperText}
         </div>
 
-        <div className="grid gap-3">
-          <div className="text-xs uppercase tracking-[0.3em] text-[#7a6f62]">repo url</div>
+        <div className="grid gap-2">
+          <Label htmlFor="repo-url" className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
+            repo url
+          </Label>
           <Input
+            id="repo-url"
             value={repoUrl}
             onChange={(event) => onUrlChange(event.target.value)}
             placeholder="https://github.com/owner/repo.git"
-            className="h-11 border-black/10 bg-white px-4 text-sm leading-none"
+            className="h-11"
           />
         </div>
 
-        <div className="grid gap-3">
-          <div className="text-xs uppercase tracking-[0.3em] text-[#7a6f62]">
+        <div className="grid gap-2">
+          <Label htmlFor="destination-folder" className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
             destination folder
-          </div>
+          </Label>
           <div className="flex flex-wrap gap-2">
             <Input
+              id="destination-folder"
               value={destinationFolder}
               placeholder={repoName ? `Choose a folder for ${repoName}` : "Choose a folder"}
               readOnly
-              className="h-11 flex-1 border-black/10 bg-white px-4 text-sm leading-none"
+              className="h-11 flex-1"
             />
-            <Button
-              variant="outline"
-              onClick={onPickDestination}
-              disabled={isCloning}
-              className="h-11 border-black/10 px-5"
-            >
+            <Button variant="outline" onClick={onPickDestination} disabled={isCloning} className="h-11">
               Browse
             </Button>
           </div>
-          <div className="border border-black/10 bg-white px-4 py-3 text-xs tracking-[0.08em] text-[#7a6f62]">
+          <div className="rounded-lg border border-border/60 bg-muted/30 px-4 py-3 text-xs text-muted-foreground">
             {cloneDestination
               ? `clone path: ${cloneDestination}`
               : repoName
@@ -91,30 +94,21 @@ export function ClonePanel({
         </div>
 
         {isCloning || progressValue > 0 ? (
-          <div className="border border-black/10 bg-white px-4 py-4">
-            <div className="flex items-center justify-between text-xs uppercase tracking-[0.24em] text-[#7a6f62]">
+          <div className="rounded-lg border border-border/60 bg-muted/20 px-4 py-4">
+            <div className="flex items-center justify-between text-xs uppercase tracking-[0.18em] text-muted-foreground">
               <span>{progressPhase || "Cloning"}</span>
               <span>{progressValue}%</span>
             </div>
-            <div className="mt-3 h-2 w-full rounded-full bg-[#efe7dd]">
-              <div
-                className="h-2 rounded-full bg-[#0f766e] transition-all"
-                style={{ width: `${Math.min(progressValue, 100)}%` }}
-              />
-            </div>
+            <Progress className="mt-3 h-2" value={Math.min(progressValue, 100)} />
           </div>
         ) : null}
 
         <div className="mt-auto">
-          <Button
-            onClick={onClone}
-            disabled={!canClone}
-            className="h-11 w-full bg-[#1f2937] text-white hover:bg-[#111827]"
-          >
+          <Button onClick={onClone} disabled={!canClone} className="h-11 w-full">
             {isCloning ? "Cloning..." : "Clone remote repo"}
           </Button>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

@@ -1,5 +1,9 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { GithubRepo } from "../api/github-repo-api";
 import { RepoListItem } from "./repo-list-item";
@@ -49,37 +53,37 @@ export function RepoPicker({
   }, [page, totalPages]);
 
   return (
-    <div className="flex h-[560px] flex-col border border-black/10 bg-white/60 overflow-hidden">
-      <div className="flex min-h-0 flex-col gap-4">
-        <div className="flex items-center justify-between px-6 pt-5">
+    <Card className="flex h-[620px] flex-col">
+      <CardHeader className="space-y-3">
+        <div className="flex items-center justify-between">
           <div>
-            <div className="text-xs uppercase tracking-[0.3em] text-[#7a6f62]">repos</div>
-            <div className="mt-2 text-lg font-semibold text-[#1d1a16]">
-              Select a GitHub repository
-            </div>
+            <CardTitle className="text-lg">Select a GitHub repository</CardTitle>
+            <p className="text-sm text-muted-foreground">Search and pick the repo to clone.</p>
           </div>
-          <div className="border border-black/10 bg-white px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-[#7a6f62]">
-            {repos.length} total
-          </div>
+          <Badge variant="secondary">{repos.length} total</Badge>
         </div>
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <Input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search repo name, owner, or language"
+            className="h-10 pl-9"
+          />
+        </div>
+      </CardHeader>
 
-        <Input
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search repo name, owner, or language"
-          className="mx-6 h-10 border-black/10 bg-white/90 px-4 text-sm leading-none"
-        />
-
-        <div className="min-h-0 flex-1 overflow-y-auto border-t border-black/10 px-6 py-4">
+      <CardContent className="flex-1 p-0">
+        <ScrollArea className="h-full px-6 pb-6">
           {isLoading ? (
             <div className="grid gap-3">
               {Array.from({ length: 6 }).map((_, index) => (
-                <div key={`loading-${index}`} className="h-14 border border-black/5 bg-white/80" />
+                <div key={`loading-${index}`} className="h-16 rounded-xl border border-border/60 bg-muted/40" />
               ))}
             </div>
           ) : filteredRepos.length === 0 ? (
-            <div className="flex h-full flex-col items-center justify-center text-center text-sm text-[#6a6157]">
-              <div className="text-base font-medium text-[#2e2a25]">No repos found</div>
+            <div className="flex h-[420px] flex-col items-center justify-center text-center text-sm text-muted-foreground">
+              <div className="text-base font-medium text-foreground">No repos found</div>
               <p className="mt-2 max-w-xs">
                 Try another search or paste a clone URL on the right to continue.
               </p>
@@ -96,32 +100,32 @@ export function RepoPicker({
               ))}
             </div>
           )}
-        </div>
+        </ScrollArea>
+      </CardContent>
 
-        <div className="flex items-center justify-between border-t border-black/10 px-6 py-4 text-xs uppercase tracking-[0.24em] text-[#7a6f62]">
-          <span>
-            page {page} of {totalPages}
-          </span>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-              disabled={page === 1}
-              className="h-8 border-black/10 px-3"
-            >
-              Prev
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
-              disabled={page === totalPages}
-              className="h-8 border-black/10 px-3"
-            >
-              Next
-            </Button>
-          </div>
+      <CardFooter className="flex items-center justify-between border-t border-border/60 text-xs text-muted-foreground">
+        <span>
+          Page {page} of {totalPages}
+        </span>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+            disabled={page === 1}
+          >
+            Prev
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+            disabled={page === totalPages}
+          >
+            Next
+          </Button>
         </div>
-      </div>
-    </div>
+      </CardFooter>
+    </Card>
   );
 }

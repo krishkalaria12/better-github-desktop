@@ -1,3 +1,5 @@
+import { Badge } from "@/components/ui/badge";
+
 interface SidebarHeaderProps {
   repoLabel: string;
   repoPath: string;
@@ -5,16 +7,12 @@ interface SidebarHeaderProps {
 
 export function SidebarHeader({ repoLabel, repoPath }: SidebarHeaderProps) {
   return (
-    <div className="border-b border-black/10 pb-6">
-      <div className="text-[11px] uppercase tracking-[0.4em] text-[#6b6257]">
+    <div className="border-b border-border/60 pb-6">
+      <Badge variant="outline" className="text-[10px] uppercase tracking-[0.24em]">
         repository
-      </div>
-      <div className="mt-3 text-2xl font-(--font-serif) tracking-tight text-[#1d1a16]">
-        {repoLabel}
-      </div>
-      <div className="mt-2 text-xs text-[#6a6157]">
-        {repoPath}
-      </div>
+      </Badge>
+      <div className="mt-3 text-xl font-semibold text-foreground">{repoLabel}</div>
+      <div className="mt-2 text-xs text-muted-foreground">{repoPath}</div>
     </div>
   );
 }

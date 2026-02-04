@@ -3,9 +3,13 @@ import { useGetGithubRepos } from "@/modules/repo/hooks/use-github-repo";
 import { openFolderSelector } from "@/utils/open-folder";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect, useMemo, useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ClonePanel } from "./clone-panel";
 import { LocalRepoCard } from "./local-repo-card";
+import { QuickFlowCard } from "./flow-component";
 import { RepoPicker } from "./repo-picker";
+import { StatusSnapshot } from "./status-component";
 
 interface StartWithoutRepoProps {
   openLocal: () => Promise<void>;
@@ -97,99 +101,74 @@ export function StartWithoutRepo({ openLocal, cloneGitRepo }: StartWithoutRepoPr
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#f6f1e8] text-[#1a1814]">
-      <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-10 py-10">
-        <div className="flex items-center justify-between border-b border-black/10 pb-6">
-          <div>
-            <div className="text-[11px] uppercase tracking-[0.4em] text-[#5c5246]">
-              git workspace setup
-            </div>
-            <div className="mt-3 text-3xl font-(--font-serif) tracking-tight">
-              Connect a repository
-            </div>
-            <p className="mt-2 max-w-2xl text-sm text-[#6b6257]">
-              Pick a repo, confirm the destination folder, and stay focused in a desktop-first
-              layout.
+    <div className="relative min-h-screen bg-background text-foreground">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background" />
+      <div className="relative mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-10">
+        <div className="flex flex-col gap-4 border-b border-border/60 pb-6">
+          <Badge variant="outline" className="w-fit text-xs uppercase tracking-[0.28em]">
+            git workspace setup
+          </Badge>
+          <div className="flex flex-col gap-2">
+            <h1 className="text-3xl font-semibold text-foreground">Connect a repository</h1>
+            <p className="max-w-2xl text-sm text-muted-foreground">
+              Pick a GitHub repo or open a local folder, confirm the destination, and jump into a
+              focused desktop workspace.
             </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="inline-flex border border-black/15 bg-white/70">
-              <button
-                type="button"
-                onClick={() => setMode("clone")}
-                className={`px-4 py-2 text-xs uppercase tracking-[0.24em] transition ${
-                  mode === "clone"
-                    ? "bg-[#1f2937] text-white"
-                    : "text-[#6b6257] hover:text-[#1f2937]"
-                }`}
-              >
-                clone repo
-              </button>
-              <button
-                type="button"
-                onClick={() => setMode("local")}
-                className={`px-4 py-2 text-xs uppercase tracking-[0.24em] transition ${
-                  mode === "local"
-                    ? "bg-[#0f766e] text-white"
-                    : "text-[#6b6257] hover:text-[#1f2937]"
-                }`}
-              >
-                open local
-              </button>
-            </div>
           </div>
         </div>
 
-        {mode === "clone" ? (
-          <div className="mt-8 grid flex-1 grid-cols-[minmax(0,1fr)_380px] gap-8">
-            <RepoPicker
-              repos={repos ?? []}
-              isLoading={isLoading}
-              selectedRepo={selectedRepo}
-              onSelect={handleSelectRepo}
-            />
-            <ClonePanel
-              selectedRepo={selectedRepo}
-              repoUrl={repoUrl}
-              onUrlChange={setRepoUrl}
-              onClone={handleClone}
-              onPickDestination={handlePickDestination}
-              destinationFolder={destinationFolder}
-              cloneDestination={cloneDestination}
-              isCloning={isCloning}
-              progressPhase={progressPhase}
-              progressValue={progressValue}
-            />
-          </div>
-        ) : (
-          <div className="mt-8 grid grid-cols-[minmax(0,1fr)_380px] items-start gap-8">
-            <div className="border border-black/10 bg-white/60 px-8 py-8">
-              <div className="text-xs uppercase tracking-[0.3em] text-[#7a6f62]">
-                local workspace
-              </div>
-              <div className="mt-3 text-2xl font-semibold text-[#1d1a16]">
-                Open a repository already on this machine.
-              </div>
-              <p className="mt-4 max-w-xl text-sm text-[#6a6157]">
-                Choose a folder, validate that it is a Git repository, and jump straight into
-                your workspace with the latest context.
-              </p>
-              <div className="mt-6">
+        <Tabs value={mode} onValueChange={(value) => setMode(value as "clone" | "local")} className="mt-8">
+          <TabsList className="grid w-full max-w-sm grid-cols-2">
+            <TabsTrigger value="clone">Clone repo</TabsTrigger>
+            <TabsTrigger value="local">Open local</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="clone" className="mt-6">
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
+              <RepoPicker
+                repos={repos ?? []}
+                isLoading={isLoading}
+                selectedRepo={selectedRepo}
+                onSelect={handleSelectRepo}
+              />
+              <ClonePanel
+                selectedRepo={selectedRepo}
+                repoUrl={repoUrl}
+                onUrlChange={setRepoUrl}
+                onClone={handleClone}
+                onPickDestination={handlePickDestination}
+                destinationFolder={destinationFolder}
+                cloneDestination={cloneDestination}
+                isCloning={isCloning}
+                progressPhase={progressPhase}
+                progressValue={progressValue}
+              />
+            </div>
+            <div className="mt-6 grid gap-6 lg:grid-cols-2">
+              <StatusSnapshot />
+              <QuickFlowCard />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="local" className="mt-6">
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+              <div className="space-y-4">
+                <div>
+                  <h2 className="text-2xl font-semibold">Open a repository already on this machine</h2>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Choose a folder, validate the Git repository, and pick up exactly where you
+                    left off.
+                  </p>
+                </div>
                 <LocalRepoCard onOpenLocal={openLocal} />
               </div>
+              <QuickFlowCard />
             </div>
-            <div className="border border-black/10 bg-white/60 px-6 py-6">
-              <div className="text-xs uppercase tracking-[0.3em] text-[#7a6f62]">
-                tips
-              </div>
-              <ul className="mt-4 space-y-3 text-sm text-[#3b352d]">
-                <li>Keep clones in a dedicated workspace folder.</li>
-                <li>Use short repo names for quicker navigation.</li>
-                <li>Switch back to Clone to pull from GitHub.</li>
-              </ul>
+            <div className="mt-6">
+              <StatusSnapshot />
             </div>
-          </div>
-        )}
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

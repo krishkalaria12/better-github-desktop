@@ -1,25 +1,30 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 export function QuickFlowCard() {
   return (
-    <div className="border border-black/10 bg-[#f7f0e5] px-6 py-6">
-      <div className="text-xs uppercase tracking-[0.3em] text-[#7a6f62]">quick flow</div>
-      <div className="mt-4 grid gap-4 text-sm text-[#3b352d]">
+    <Card>
+      <CardHeader>
+        <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground">quick flow</p>
+        <CardTitle className="mt-2 text-lg">Start fast, stay organized</CardTitle>
+      </CardHeader>
+      <CardContent className="grid gap-4 text-sm text-muted-foreground">
         <FlowStep index="01">
           Pick a repo source and name your workspace so it stays searchable later.
         </FlowStep>
         <FlowStep index="02">Confirm clone path and sync before you start.</FlowStep>
         <FlowStep index="03">Jump back into your last working state instantly.</FlowStep>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 
 export function FlowStep({ index, children }: { index: string; children: string }) {
   return (
     <div className="flex items-start gap-4">
-      <div className="mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-white text-xs font-semibold text-[#0f766e]">
+      <div className="mt-1 flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
         {index}
       </div>
-      <div>{children}</div>
+      <div className="text-foreground">{children}</div>
     </div>
   );
 }

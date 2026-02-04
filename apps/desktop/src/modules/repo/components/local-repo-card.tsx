@@ -1,26 +1,25 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function LocalRepoCard({ onOpenLocal }: { onOpenLocal: () => Promise<void> }) {
   return (
-    <div className="border border-black/10 bg-white/60 px-6 py-4">
-      <div className="flex items-center justify-between">
+    <Card>
+      <CardHeader className="flex flex-row items-start justify-between gap-4">
         <div>
-          <div className="text-xs uppercase tracking-[0.3em] text-[#7a6f62]">open local</div>
-          <div className="mt-2 text-lg font-semibold text-[#1d1a16]">Add a local repo</div>
+          <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground">open local</p>
+          <CardTitle className="mt-2 text-lg">Add a local repo</CardTitle>
         </div>
-        <span className="border border-[#0f766e]/30 bg-[#e7f3f0] px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-[#0f766e]">
-          local
-        </span>
-      </div>
-      <p className="mt-3 text-sm text-[#6a6157]">
-        Browse for a folder on this machine and connect it instantly to your workspace.
-      </p>
-      <Button
-        onClick={onOpenLocal}
-        className="mt-4 h-10 w-full bg-[#0f766e] text-white hover:bg-[#0b5f59]"
-      >
-        Add local repo
-      </Button>
-    </div>
+        <Badge variant="outline">local</Badge>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <p className="text-sm text-muted-foreground">
+          Browse for a folder on this machine and connect it instantly to your workspace.
+        </p>
+        <Button onClick={onOpenLocal} className="h-11 w-full">
+          Add local repo
+        </Button>
+      </CardContent>
+    </Card>
   );
 }

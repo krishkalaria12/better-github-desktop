@@ -1,3 +1,5 @@
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { FileChange } from "@/modules/workspace/api/tauri-git-api";
 import { FileStatus } from "@/modules/workspace/api/tauri-git-api";
 
@@ -33,27 +35,23 @@ export function BranchSummary({ branchName, changes }: BranchSummaryProps) {
   );
 
   return (
-    <div className="rounded-none border border-black/10 bg-[#f7f2ea] px-4 py-4">
-      <div className="text-[11px] uppercase tracking-[0.3em] text-[#7a6f62]">
-        current branch
-      </div>
-      <div className="mt-2 flex flex-wrap items-center gap-2">
-        <div className="text-lg font-semibold text-[#1d1a16]">{branchName}</div>
-        <div className="ml-auto rounded-full border border-black/10 px-3 py-1 text-[11px] uppercase text-[#6b6257]">
-          {changes.length} changes
+    <Card>
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
+              current branch
+            </p>
+            <CardTitle className="mt-2 text-lg">{branchName}</CardTitle>
+          </div>
+          <Badge variant="secondary">{changes.length} changes</Badge>
         </div>
-      </div>
-      <div className="mt-4 flex flex-wrap gap-3 text-xs uppercase tracking-[0.2em] text-[#6b6257]">
-        <div className="min-w-22 flex-1 rounded-none border border-black/10 bg-white/70 px-2 py-2 text-center">
-          {counts.new} new
-        </div>
-        <div className="min-w-22 flex-1 rounded-none border border-black/10 bg-white/70 px-2 py-2 text-center">
-          {counts.modified} modified
-        </div>
-        <div className="min-w-22 flex-1 rounded-none border border-black/10 bg-white/70 px-2 py-2 text-center">
-          {counts.deleted} deleted
-        </div>
-      </div>
-    </div>
+      </CardHeader>
+      <CardContent className="flex flex-wrap gap-2 text-xs">
+        <Badge variant="outline">{counts.new} new</Badge>
+        <Badge variant="outline">{counts.modified} modified</Badge>
+        <Badge variant="outline">{counts.deleted} deleted</Badge>
+      </CardContent>
+    </Card>
   );
 }

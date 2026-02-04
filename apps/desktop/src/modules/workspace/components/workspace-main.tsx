@@ -1,5 +1,7 @@
 import { DiffViewer } from "@/modules/workspace/components/diff-viewer";
 import { useGetDiffChanges } from "@/modules/workspace/hooks/use-git-changes";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface WorkspaceMainProps {
   repoLabel: string;
@@ -12,70 +14,38 @@ export function WorkspaceMain({ repoLabel, repoPath, selectedPath }: WorkspaceMa
   const diffs = diffChanges ?? [];
 
   return (
-    <main className="flex min-h-screen min-w-0 flex-1 flex-col px-10 py-10">
-      <div className="flex items-center justify-between border-b border-black/10 pb-6">
-        <div>
-          <div className="text-[11px] uppercase tracking-[0.4em] text-[#5c5246]">
-            workspace overview
+    <main className="flex min-h-screen min-w-0 flex-1 flex-col px-8 py-10">
+      <div className="flex flex-col gap-4 border-b border-border/60 pb-6">
+        <Badge variant="outline" className="w-fit text-xs uppercase tracking-[0.28em]">
+          workspace overview
+        </Badge>
+        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h1 className="text-3xl font-semibold">{repoLabel}</h1>
+            <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{repoPath}</p>
           </div>
-          <div className="mt-3 text-3xl font-(--font-serif) tracking-tight">
-            {repoLabel}
+          <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-muted-foreground">
+            <Badge variant="secondary">local</Badge>
           </div>
-          <div className="mt-2 max-w-2xl text-sm text-[#6b6257]">
-            {repoPath}
-          </div>
-        </div>
-        <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-[#6b6257]">
-          <span className="rounded-full border border-black/10 px-3 py-1">local</span>
-          <span className="rounded-full border border-black/10 px-3 py-1">tauri</span>
         </div>
       </div>
 
-      <div className="mt-10 grid flex-1 grid-cols-[minmax(0,1fr)_320px] gap-8">
-        <section className="flex h-full flex-col border border-black/10 bg-white/70 px-8 py-8">
-          <div className="flex items-center justify-between border-b border-black/10 pb-4">
+      <div className="mt-8 grid flex-1 gap-6">
+        <Card className="flex h-full flex-col">
+          <CardHeader className="flex flex-row items-start justify-between gap-4">
             <div>
-              <div className="text-xs uppercase tracking-[0.3em] text-[#7a6f62]">
-                diff preview
-              </div>
-              <div className="mt-3 text-2xl font-semibold text-[#1d1a16]">
+              <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">diff preview</p>
+              <CardTitle className="mt-2 text-xl">
                 {selectedPath ?? "Pick a file"}
-              </div>
+              </CardTitle>
             </div>
-            <div className="text-xs uppercase tracking-[0.3em] text-[#7a6f62]">
-              {isLoading ? "loading" : "ready"}
-            </div>
-          </div>
-          <div className="mt-6 flex-1">
+            <Badge variant="outline">{isLoading ? "loading" : "ready"}</Badge>
+          </CardHeader>
+          <CardContent className="flex-1">
             <DiffViewer filePath={selectedPath ?? ""} diffs={diffs} />
-          </div>
-        </section>
+          </CardContent>
+        </Card>
 
-        <aside className="border border-black/10 bg-white/70 px-6 py-6">
-          <div className="text-xs uppercase tracking-[0.3em] text-[#7a6f62]">
-            backend status
-          </div>
-          <div className="mt-4 space-y-4 text-sm text-[#3b352d]">
-            <div className="flex items-start justify-between">
-              <span className="font-medium">Repo validation</span>
-              <span className="rounded-full border border-black/10 px-2 py-1 text-[11px] uppercase">
-                ready
-              </span>
-            </div>
-            <div className="flex items-start justify-between">
-              <span className="font-medium">Git changes hook</span>
-              <span className="rounded-full border border-black/10 px-2 py-1 text-[11px] uppercase">
-                wired
-              </span>
-            </div>
-            <div className="flex items-start justify-between">
-              <span className="font-medium">UI wiring</span>
-              <span className="rounded-full border border-black/10 px-2 py-1 text-[11px] uppercase">
-                pending
-              </span>
-            </div>
-          </div>
-        </aside>
       </div>
     </main>
   );

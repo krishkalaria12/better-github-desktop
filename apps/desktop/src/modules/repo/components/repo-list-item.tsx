@@ -1,3 +1,5 @@
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import type { GithubRepo } from "../api/github-repo-api";
 
 export function RepoListItem({
@@ -13,33 +15,30 @@ export function RepoListItem({
     <button
       type="button"
       onClick={onSelect}
-      className={`flex w-full items-center justify-between gap-4 border px-3 py-3 text-left transition ${
+      className={`flex w-full items-center justify-between gap-4 rounded-xl border px-4 py-3 text-left transition ${
         isSelected
-          ? "border-l-4 border-l-[#0f766e] border-[#0f766e]/40 bg-[#e7f3f0]"
-          : "border-black/10 bg-white hover:bg-[#f5f0e7]"
+          ? "border-primary/40 bg-primary/5 shadow-sm"
+          : "border-border/60 bg-background/70 hover:bg-muted/40"
       }`}
     >
       <div className="flex min-w-0 items-center gap-3">
-        <img
-          src={repo.owner.avatar_url}
-          alt={repo.owner.login}
-          className="h-9 w-9 rounded-full border border-black/10"
-        />
+        <Avatar className="h-9 w-9 border border-border/60">
+          <AvatarImage src={repo.owner.avatar_url} alt={repo.owner.login} />
+          <AvatarFallback>{repo.owner.login.slice(0, 2).toUpperCase()}</AvatarFallback>
+        </Avatar>
         <div className="min-w-0">
-          <div className="truncate text-sm font-semibold text-[#1d1a16]">
-            {repo.full_name}
-          </div>
-          <div className="truncate text-xs text-[#6a6157]">
+          <div className="truncate text-sm font-semibold text-foreground">{repo.full_name}</div>
+          <div className="truncate text-xs text-muted-foreground">
             {repo.description ?? "No description"}
           </div>
         </div>
       </div>
-        <div className="flex flex-col items-end gap-2 text-xs text-[#6a6157]">
-          <span className="border border-black/10 bg-white px-2.5 py-1 uppercase tracking-[0.2em]">
-            {repo.private ? "private" : "public"}
-          </span>
-          <span>{repo.language ?? "Unknown"}</span>
-        </div>
+      <div className="flex flex-col items-end gap-2 text-xs text-muted-foreground">
+        <Badge variant={repo.private ? "secondary" : "outline"}>
+          {repo.private ? "private" : "public"}
+        </Badge>
+        <Badge variant="outline">{repo.language ?? "Unknown"}</Badge>
+      </div>
     </button>
   );
 }

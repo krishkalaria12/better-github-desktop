@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -73,29 +74,29 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-[#0b1117] px-6 py-12 text-slate-200">
+    <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-background px-6 py-12 text-foreground">
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,var(--tw-gradient-stops))] from-slate-800/40 via-[#0b1117] to-[#0b1117]" />
-        <div className="absolute right-[-20%] top-[-30%] h-105 w-105 rounded-full bg-linear-to-br from-blue-500/20 via-cyan-400/10 to-transparent blur-3xl" />
-        <div className="absolute left-[-10%] bottom-[-25%] h-80 w-80 rounded-full bg-linear-to-br from-emerald-400/15 via-blue-500/10 to-transparent blur-3xl" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,var(--tw-gradient-stops))] from-primary/15 via-background to-background" />
+        <div className="absolute right-[-20%] top-[-30%] h-105 w-105 rounded-full bg-linear-to-br from-primary/20 via-cyan-400/10 to-transparent blur-3xl" />
+        <div className="absolute left-[-10%] bottom-[-25%] h-80 w-80 rounded-full bg-linear-to-br from-emerald-400/15 via-primary/10 to-transparent blur-3xl" />
       </div>
 
       <div className="relative z-10 w-full max-w-lg">
         <div className="mb-6 flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
-            <Github className="h-6 w-6 text-white" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-border/60 bg-muted/40">
+            <Github className="h-6 w-6 text-foreground" />
           </div>
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Better Desktop</p>
-            <p className="text-lg font-semibold text-white">Sign in</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Better Desktop</p>
+            <p className="text-lg font-semibold">Sign in</p>
           </div>
         </div>
 
-        <Card className="relative overflow-hidden border-[#222a36] bg-[#121824] shadow-[0_25px_70px_-45px_rgba(15,23,42,0.9)]">
-          <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-cyan-400 via-blue-500 to-slate-200" />
+        <Card className="relative overflow-hidden border-border/60 bg-card/80 shadow-[0_30px_80px_-60px_rgba(15,23,42,0.55)]">
+          <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-primary via-cyan-400 to-emerald-400" />
           <CardHeader className="space-y-2 pb-4">
-            <CardTitle className="text-2xl text-white">Continue with GitHub</CardTitle>
-            <CardDescription className="text-slate-400">
+            <CardTitle className="text-2xl">Continue with GitHub</CardTitle>
+            <CardDescription className="text-muted-foreground">
               Choose your preferred sign-in method to sync repositories.
             </CardDescription>
           </CardHeader>
@@ -103,25 +104,25 @@ export default function LoginPage() {
           <CardContent className="grid gap-6">
             {step === "init" ? (
               <Tabs defaultValue="oauth" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 border border-[#263040] bg-[#0c111b]">
+                <TabsList className="grid w-full grid-cols-2 border border-border/60 bg-muted/40">
                   <TabsTrigger value="oauth">Device Flow</TabsTrigger>
                   <TabsTrigger value="token">Manual Token</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="oauth" className="space-y-4 pt-5">
-                  <div className="rounded-xl border border-[#273042] bg-[#0d1320] p-4 text-sm text-slate-300">
+                  <div className="rounded-xl border border-border/60 bg-muted/30 p-4 text-sm text-muted-foreground">
                     <div className="flex items-center justify-between">
-                      <span className="font-medium text-white">Secure browser authorization</span>
-                      <span className="text-xs text-slate-400">~30 seconds</span>
+                      <span className="font-medium text-foreground">Secure browser authorization</span>
+                      <span className="text-xs text-muted-foreground">~30 seconds</span>
                     </div>
-                    <p className="mt-2 text-xs text-slate-400">
+                    <p className="mt-2 text-xs text-muted-foreground">
                       We will open the GitHub device page and show your code.
                     </p>
                   </div>
                   <Button
                     disabled={isGettingCode}
                     onClick={handleGithubLogin}
-                    className="h-12 w-full gap-3 bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-400 text-sm font-semibold text-slate-900 hover:opacity-90"
+                    className="h-12 w-full gap-3 text-sm font-semibold"
                   >
                     {isGettingCode ? (
                       <Loader2 className="w-5 h-5 animate-spin" />
@@ -139,9 +140,11 @@ export default function LoginPage() {
                       placeholder="ghp_..."
                       value={manualToken}
                       onChange={(e) => setManualToken(e.target.value)}
-                      className="h-12 bg-[#0d1320] border-[#263040] text-white"
+                      className="h-12"
                     />
-                    <p className="text-xs text-slate-500">Paste a personal access token with repo permissions.</p>
+                    <p className="text-xs text-muted-foreground">
+                      Paste a personal access token with repo permissions.
+                    </p>
                   </div>
                   <Button
                     onClick={async () => {
@@ -149,7 +152,8 @@ export default function LoginPage() {
                       await setToken(manualToken.trim());
                       navigate({ to: "/choosegitclient" });
                     }}
-                    className="h-12 w-full bg-white text-sm font-semibold text-slate-900 hover:bg-slate-100"
+                    variant="secondary"
+                    className="h-12 w-full text-sm font-semibold"
                   >
                     Verify and continue
                   </Button>
@@ -157,32 +161,36 @@ export default function LoginPage() {
               </Tabs>
             ) : (
               <div className="space-y-6">
-                <div className="rounded-2xl border border-[#273042] bg-[#0d1320] p-5">
-                  <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-slate-500">
+                <div className="rounded-2xl border border-border/60 bg-muted/30 p-5">
+                  <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-muted-foreground">
                     <span>Device code</span>
-                    <span className="text-emerald-400">Active</span>
+                    <Badge variant="secondary">Active</Badge>
                   </div>
-                  <div className="mt-4 flex items-center justify-between rounded-xl border border-[#293344] bg-[#0b111b] px-4 py-4">
-                    <code className="text-2xl font-mono font-semibold tracking-[0.3em] text-white">
+                  <div className="mt-4 flex items-center justify-between rounded-xl border border-border/60 bg-background px-4 py-4">
+                    <code className="text-2xl font-semibold tracking-[0.3em] text-foreground">
                       {deviceData?.user_code || "LOADING"}
                     </code>
                     <Button
                       size="icon"
                       variant="ghost"
                       onClick={handleCopy}
-                      className="text-slate-400 hover:text-white"
+                      className="text-muted-foreground hover:text-foreground"
                     >
-                      {copied ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                      {copied ? (
+                        <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
                     </Button>
                   </div>
-                  <p className="mt-3 text-xs text-slate-400">
+                  <p className="mt-3 text-xs text-muted-foreground">
                     Open {deviceData?.verification_uri ?? "github.com/login/device"} in your browser and enter the code.
                   </p>
                 </div>
 
-                <div className="flex items-center justify-between rounded-xl border border-[#263040] bg-[#0d1320] px-4 py-3 text-xs text-slate-400">
+                <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/30 px-4 py-3 text-xs text-muted-foreground">
                   <div className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full bg-cyan-400" />
+                    <span className="h-2 w-2 rounded-full bg-primary" />
                     {pollData?.error === "authorization_pending"
                       ? "Waiting for approval..."
                       : pollData?.access_token
@@ -191,7 +199,7 @@ export default function LoginPage() {
                   </div>
                   <Button
                     variant="link"
-                    className="text-xs text-slate-500 hover:text-slate-200"
+                    className="text-xs text-muted-foreground hover:text-foreground"
                     onClick={() => setStep("init")}
                   >
                     Cancel
