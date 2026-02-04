@@ -5,9 +5,11 @@ import { ChangeRow } from "@/modules/workspace/components/sidebar/change-row";
 interface ChangesListProps {
   changes: FileChange[];
   isLoading: boolean;
+  selectedPath: string | null;
+  onSelect: (path: string) => void;
 }
 
-export function ChangesList({ changes, isLoading }: ChangesListProps) {
+export function ChangesList({ changes, isLoading, selectedPath, onSelect }: ChangesListProps) {
   return (
     <div className="rounded-none border border-black/10 bg-white/80 px-4 py-4">
       <div className="flex items-center justify-between">
@@ -32,7 +34,12 @@ export function ChangesList({ changes, isLoading }: ChangesListProps) {
           </div>
         ) : (
           changes.map((change) => (
-            <ChangeRow key={`${change.path}-${change.status}`} change={change} />
+            <ChangeRow
+              key={`${change.path}-${change.status}`}
+              change={change}
+              isSelected={selectedPath === change.path}
+              onSelect={onSelect}
+            />
           ))
         )}
       </div>

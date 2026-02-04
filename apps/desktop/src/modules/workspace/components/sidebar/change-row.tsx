@@ -3,6 +3,8 @@ import { FileStatus } from "@/modules/workspace/api/tauri-git-api";
 
 interface ChangeRowProps {
   change: FileChange;
+  isSelected: boolean;
+  onSelect: (path: string) => void;
 }
 
 const normalizeStatus = (status: FileChange["status"]) => {
@@ -18,14 +20,21 @@ const statusStyles: Record<string, { label: string; className: string }> = {
   Deleted: { label: "deleted", className: "border-rose-500/30 bg-rose-500/10 text-rose-700" },
 };
 
-export function ChangeRow({ change }: ChangeRowProps) {
+export function ChangeRow({ change, isSelected, onSelect }: ChangeRowProps) {
   const normalizedStatus = normalizeStatus(change.status);
   const status = statusStyles[normalizedStatus] ?? statusStyles.Modified;
+  const containerClasses = isSelected
+    ? "border-[#1f2937] bg-[#f3ede3]"
+    : "border-black/10 bg-white/90 hover:bg-[#f7f2ea]";
 
   return (
-    <div className="flex items-start justify-between gap-3 border border-black/10 bg-white/90 px-3 py-3">
+    <button
+      type="button"
+      onClick={() => onSelect(change.path)}
+      className={`flex w-full items-start justify-between gap-3 border px-3 py-3 text-left transition ${containerClasses}`}
+    >
       <div className="min-w-0 flex-1">
-        <div className="wrap-break-word text-sm font-medium text-[#1d1a16]">
+        <div className="break-words text-sm font-medium text-[#1d1a16]">
           {change.path}
         </div>
         <div className="mt-1 text-xs text-[#6a6157]">tracked change</div>
@@ -37,6 +46,6 @@ export function ChangeRow({ change }: ChangeRowProps) {
       >
         {status.label}
       </span>
-    </div>
+    </button>
   );
 }

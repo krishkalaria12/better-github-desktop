@@ -11,6 +11,15 @@ export interface FileChange {
   status: FileStatus
 }
 
+export interface DiffChange {
+  new_content: string,
+  old_content: string
+}
+
 export async function getRepoChanges(): Promise<FileChange[]> {
   return await invoke("get_repo_changes")
+}
+
+export async function getDiffChanges(path: string): Promise<DiffChange[]> {
+  return await invoke("get_file_diff", { path })
 }

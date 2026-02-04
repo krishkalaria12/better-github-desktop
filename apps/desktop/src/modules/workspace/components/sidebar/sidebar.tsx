@@ -6,9 +6,11 @@ import { useGetRepoChanges } from "@/modules/workspace/hooks/use-git-changes";
 interface WorkspaceSidebarProps {
   repoLabel: string;
   repoPath: string;
+  selectedPath: string | null;
+  onSelectPath: (path: string) => void;
 }
 
-export function WorkspaceSidebar({ repoLabel, repoPath }: WorkspaceSidebarProps) {
+export function WorkspaceSidebar({ repoLabel, repoPath, selectedPath, onSelectPath }: WorkspaceSidebarProps) {
   const { data, isLoading } = useGetRepoChanges();
   const changes = data ?? [];
 
@@ -17,7 +19,12 @@ export function WorkspaceSidebar({ repoLabel, repoPath }: WorkspaceSidebarProps)
       <SidebarHeader repoLabel={repoLabel} repoPath={repoPath} />
       <div className="mt-8 flex flex-col gap-6">
         <BranchSummary branchName="main" changes={changes} />
-        <ChangesList changes={changes} isLoading={isLoading} />
+        <ChangesList
+          changes={changes}
+          isLoading={isLoading}
+          selectedPath={selectedPath}
+          onSelect={onSelectPath}
+        />
       </div>
     </aside>
   );

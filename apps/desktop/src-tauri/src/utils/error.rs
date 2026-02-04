@@ -1,17 +1,12 @@
-use std::sync::Arc;
-
 use serde::Serialize;
+
+use crate::repo;
 
 pub type Result<T> = core::result::Result<T, Error>;
 
 #[derive(Debug)]
 pub enum Error {
-    TauriPluginStore(Arc<tauri_plugin_store::Error>),
-    StoreError(String),
-    SerdeJson(serde_json::Error),
-    Git(Arc<git2::Error>),
-    RepoOpeningError(String),
-    RepoToDiffError(String),
+    RepoError(repo::error::Error),
 }
 
 impl Serialize for Error {
@@ -26,9 +21,7 @@ impl Serialize for Error {
 // region:    --- Froms
 
 crate::impl_froms! {
-    TauriPluginStore(tauri_plugin_store::Error, arc),
-    SerdeJson(serde_json::Error),
-    Git(git2::Error, arc),
+    RepoError(repo::error::Error),
 }
 
 // endregion: --- Froms
@@ -37,12 +30,7 @@ crate::impl_froms! {
 impl core::fmt::Display for Error {
     fn fmt(&self, fmt: &mut core::fmt::Formatter) -> core::result::Result<(), core::fmt::Error> {
         match self {
-            Self::TauriPluginStore(e) => write!(fmt, "{e}"),
-            Self::StoreError(e) => write!(fmt, "{e}"),
-            Self::SerdeJson(e) => write!(fmt, "{e}"),
-            Self::Git(e) => write!(fmt, "{e}"),
-            Self::RepoOpeningError(e) => write!(fmt, "{e}"),
-            Self::RepoToDiffError(e) => write!(fmt, "{e}"),
+            Self::RepoError(e) => write!(fmt, "{e}"),
         }
     }
 }

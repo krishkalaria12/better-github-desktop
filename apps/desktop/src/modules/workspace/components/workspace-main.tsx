@@ -1,9 +1,16 @@
+import { DiffViewer } from "@/modules/workspace/components/diff-viewer";
+import { useGetDiffChanges } from "@/modules/workspace/hooks/use-git-changes";
+
 interface WorkspaceMainProps {
   repoLabel: string;
   repoPath: string;
+  selectedPath: string | null;
 }
 
-export function WorkspaceMain({ repoLabel, repoPath }: WorkspaceMainProps) {
+export function WorkspaceMain({ repoLabel, repoPath, selectedPath }: WorkspaceMainProps) {
+  const { data: diffChanges, isLoading } = useGetDiffChanges(selectedPath ?? undefined);
+  const diffs = diffChanges ?? [];
+
   return (
     <main className="flex min-h-screen min-w-0 flex-1 flex-col px-10 py-10">
       <div className="flex items-center justify-between border-b border-black/10 pb-6">
@@ -25,26 +32,22 @@ export function WorkspaceMain({ repoLabel, repoPath }: WorkspaceMainProps) {
       </div>
 
       <div className="mt-10 grid flex-1 grid-cols-[minmax(0,1fr)_320px] gap-8">
-        <section className="flex h-full flex-col justify-between border border-black/10 bg-white/70 px-8 py-8">
-          <div>
+        <section className="flex h-full flex-col border border-black/10 bg-white/70 px-8 py-8">
+          <div className="flex items-center justify-between border-b border-black/10 pb-4">
+            <div>
+              <div className="text-xs uppercase tracking-[0.3em] text-[#7a6f62]">
+                diff preview
+              </div>
+              <div className="mt-3 text-2xl font-semibold text-[#1d1a16]">
+                {selectedPath ?? "Pick a file"}
+              </div>
+            </div>
             <div className="text-xs uppercase tracking-[0.3em] text-[#7a6f62]">
-              activity hub
+              {isLoading ? "loading" : "ready"}
             </div>
-            <div className="mt-4 text-2xl font-semibold text-[#1d1a16]">
-              Changes will appear alongside your commits.
-            </div>
-            <p className="mt-4 max-w-xl text-sm text-[#6a6157]">
-              Keep this space ready for diffs, commit previews, and history once you wire the
-              interactions. The layout already matches the backend responses.
-            </p>
           </div>
-          <div className="mt-10 grid gap-4 text-sm text-[#4b4237]">
-            <div className="border border-black/10 bg-[#f7f2ea] px-4 py-4">
-              Highlighted file content and diff previews.
-            </div>
-            <div className="border border-black/10 bg-[#f7f2ea] px-4 py-4">
-              Commit metadata and branch insights.
-            </div>
+          <div className="mt-6 flex-1">
+            <DiffViewer filePath={selectedPath ?? ""} diffs={diffs} />
           </div>
         </section>
 
