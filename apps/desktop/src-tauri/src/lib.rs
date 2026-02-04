@@ -15,7 +15,8 @@ pub fn run() {
             auth::get_auth_token,
             repo::check_is_git_repo,
             repo::get_last_opened_repo,
-            repo::clone::clone_repo
+            repo::clone::clone_repo,
+            repo::status::get_repo_changes
         ])
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_http::init())

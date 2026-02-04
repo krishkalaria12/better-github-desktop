@@ -1,5 +1,6 @@
 pub mod clone;
 pub mod error;
+pub mod status;
 
 use crate::{
     config::config,

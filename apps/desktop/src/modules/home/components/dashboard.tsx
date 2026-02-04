@@ -1,6 +1,7 @@
 import { cloneRepo } from "@/modules/repo/api/tauri-repo-api";
 import { StartWithoutRepo } from "@/modules/repo/components/start-without-repo";
 import { useCheckGitFolder } from "@/modules/repo/hooks/use-tauri-repo";
+import { WorkspaceShell } from "@/modules/workspace/components/workspace-shell";
 import { useAuthStore } from "@/store/github-client";
 import { openFolderSelector } from "@/utils/open-folder";
 import { toast } from "sonner";
@@ -62,7 +63,7 @@ export function Dashboard() {
     !last_opened_repo ? (
       <StartWithoutRepo cloneGitRepo={handleCloneGitRepo} openLocal={handleCheckGitRepoLocal} />
     ) : (
-      <div>Dashboard: {last_opened_repo}</div>
+      <WorkspaceShell repoPath={last_opened_repo} />
     )
   );
 }
