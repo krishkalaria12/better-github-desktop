@@ -7,11 +7,20 @@ import { ChangeRow } from "@/modules/workspace/components/sidebar/change-row";
 interface ChangesListProps {
   changes: FileChange[];
   isLoading: boolean;
+  isError: boolean;
+  errorMessage?: string;
   selectedPath: string | null;
   onSelect: (path: string) => void;
 }
 
-export function ChangesList({ changes, isLoading, selectedPath, onSelect }: ChangesListProps) {
+export function ChangesList({
+  changes,
+  isLoading,
+  isError,
+  errorMessage,
+  selectedPath,
+  onSelect,
+}: ChangesListProps) {
   return (
     <Card className="flex h-[420px] flex-col">
       <CardHeader className="flex flex-row items-center justify-between pb-3">
@@ -27,6 +36,10 @@ export function ChangesList({ changes, isLoading, selectedPath, onSelect }: Chan
               <Skeleton className="h-14 w-full" />
               <Skeleton className="h-14 w-full" />
               <Skeleton className="h-14 w-full" />
+            </div>
+          ) : isError ? (
+            <div className="rounded-xl border border-dashed border-border/60 bg-muted/30 px-3 py-4 text-sm text-muted-foreground">
+              {errorMessage ?? "Unable to load file status. Check the repo path."}
             </div>
           ) : changes.length === 0 ? (
             <div className="rounded-xl border border-dashed border-border/60 bg-muted/30 px-3 py-4 text-sm text-muted-foreground">

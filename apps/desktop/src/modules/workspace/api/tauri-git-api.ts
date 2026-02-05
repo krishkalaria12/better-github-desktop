@@ -16,8 +16,8 @@ export interface DiffChange {
   old_content: string
 }
 
-export async function getRepoChanges(): Promise<FileChange[]> {
-  return await invoke("get_repo_changes")
+export async function getRepoChanges(repoPath?: string): Promise<FileChange[]> {
+  return await invoke("get_repo_changes", { repoPath })
 }
 
 export async function getDiffChanges(path: string): Promise<DiffChange[]> {

@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { getDiffChanges, getRepoChanges } from "../api/tauri-git-api";
 
-export function useGetRepoChanges() {
+export function useGetRepoChanges(repoPath?: string) {
   return useQuery({
-    queryKey: ["repo-changes"],
-    queryFn: getRepoChanges,
+    queryKey: ["repo-changes", repoPath],
+    queryFn: () => getRepoChanges(repoPath),
+    enabled: !!repoPath,
   });
 }
 

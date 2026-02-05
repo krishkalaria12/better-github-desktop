@@ -12,7 +12,5 @@ export interface BranchType {
 }
 
 export async function getBranches(): Promise<BranchType[]> {
-  const response: BranchType[] = await invoke("list_branches");
-  console.log(response)
-  return response;
+  return await invoke("list_branches");
 }
