@@ -1,8 +1,8 @@
 use std::{fs, path::Path, str::from_utf8};
 
-use git2::Repository;
+use git2::{DiffOptions, Oid, Repository, Tree};
 use serde::Serialize;
-use tauri::command;
+use tauri::{command, AppHandle};
 
 use crate::{repo::error::Error, repo::error::Result, repo::open_repo};
 
@@ -28,6 +28,53 @@ pub fn get_file_diff(path: String, app: tauri::AppHandle) -> Result<DiffState> {
         new_content,
         old_content,
     })
+}
+
+#[command]
+pub fn get_file_diff_by_commit(
+    app: AppHandle,
+    commit_id: String,
+    file_path: String,
+) -> Result<DiffState> {
+    let repo = open_repo(app.clone(), None)?;
+
+    let oid = Oid::from_str(&commit_id)?;
+    let commit = repo.find_commit(oid)?;
+    let tree = commit.tree()?;
+
+    let parent_tree = if commit.parent_count() > 0 {
+        let parent = commit.parent(0)?;
+        Some(parent.tree()?)
+    } else {
+        None
+    };
+
+    let new_content = get_file_content_from_tree(&repo, &tree, &file_path);
+
+    let old_content = if let Some(pt) = parent_tree {
+        get_file_content_from_tree(&repo, &pt, &file_path)
+    } else {
+        String::new()
+    };
+
+    Ok(DiffState {
+        new_content,
+        old_content,
+    })
+}
+
+fn get_file_content_from_tree(repo: &Repository, tree: &Tree, path: &str) -> String {
+    match tree.get_path(Path::new(path)) {
+        Ok(entry) => {
+            if let Ok(object) = entry.to_object(repo) {
+                if let Some(blob) = object.as_blob() {
+                    return String::from_utf8_lossy(blob.content()).to_string();
+                }
+            }
+            String::new()
+        }
+        Err(_) => String::new(),
+    }
 }
 
 fn get_file_content_from_head(repo: &Repository, path: &str) -> Result<String> {

@@ -1,0 +1,10 @@
+import { useQuery } from "@tanstack/react-query";
+import { getRepoChangesFromCommit } from "../api/tuari-commit-api";
+
+export function useCommitChanges(commitId?: string, repoPath?: string) {
+  return useQuery({
+    queryKey: ["commit-changes", commitId, repoPath],
+    queryFn: () => getRepoChangesFromCommit(commitId ?? "", repoPath),
+    enabled: Boolean(commitId && repoPath),
+  });
+}

@@ -19,7 +19,9 @@ pub fn run() {
             repo::status::get_repo_changes,
             repo::file::get_file_diff,
             repo::branch::list_branches,
-            repo::commit::get_commits
+            repo::commit::get_commits,
+            repo::file::get_file_diff_by_commit,
+            repo::status::get_repo_changes_from_commit,
         ])
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_http::init())

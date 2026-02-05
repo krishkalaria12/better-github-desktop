@@ -4,6 +4,8 @@ import { SidebarHeader } from "@/modules/workspace/components/sidebar/sidebar-he
 import { useGetRepoChanges } from "@/modules/workspace/hooks/use-git-changes";
 import { BranchSection } from "@/modules/branches/components/branch-section";
 import { CommitHistorySection } from "@/modules/commits/components/commit-history-section";
+import { CommitChangesSection } from "@/modules/commits/components/commit-changes-section";
+import { CommitFileDiffSection } from "@/modules/commits/components/commit-file-diff-section";
 
 interface WorkspaceSidebarProps {
   repoLabel: string;
@@ -29,6 +31,8 @@ export function WorkspaceSidebar({ repoLabel, repoPath, selectedPath, onSelectPa
         <BranchSummary branchName="main" changes={changes} />
         <BranchSection />
         <CommitHistorySection repoPath={repoPath} />
+        <CommitChangesSection repoPath={repoPath} />
+        <CommitFileDiffSection />
         <ChangesList
           changes={changes}
           isLoading={isLoading}
