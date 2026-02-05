@@ -1,3 +1,4 @@
+pub mod branch;
 pub mod clone;
 pub mod error;
 pub mod file;

@@ -2,6 +2,7 @@ import { BranchSummary } from "@/modules/workspace/components/sidebar/branch-sum
 import { ChangesList } from "@/modules/workspace/components/sidebar/changes-list";
 import { SidebarHeader } from "@/modules/workspace/components/sidebar/sidebar-header";
 import { useGetRepoChanges } from "@/modules/workspace/hooks/use-git-changes";
+import { BranchSection } from "@/modules/branches/components/branch-section";
 
 interface WorkspaceSidebarProps {
   repoLabel: string;
@@ -19,6 +20,7 @@ export function WorkspaceSidebar({ repoLabel, repoPath, selectedPath, onSelectPa
       <SidebarHeader repoLabel={repoLabel} repoPath={repoPath} />
       <div className="mt-8 flex flex-col gap-6">
         <BranchSummary branchName="main" changes={changes} />
+        <BranchSection />
         <ChangesList
           changes={changes}
           isLoading={isLoading}
