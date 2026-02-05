@@ -1,8 +1,8 @@
-use git2::{BranchType, Repository};
+use git2::BranchType;
 use serde::Serialize;
 use tauri::{command, AppHandle};
 
-use crate::{repo::error::Result, utils::store_helper::get_last_opened_repo_path};
+use crate::{repo::error::Result, repo::open_repo};
 
 #[derive(Clone, Serialize)]
 pub struct BranchInfo {
@@ -13,9 +13,7 @@ pub struct BranchInfo {
 
 #[command]
 pub fn list_branches(app: AppHandle) -> Result<Vec<BranchInfo>> {
-    let repo_json = get_last_opened_repo_path(app.clone())?;
-    let repo_path = repo_json.as_str().unwrap_or("");
-    let repo = Repository::open(repo_path)?;
+    let repo = open_repo(app.clone(), None)?;
 
     let branches = repo.branches(None)?;
 

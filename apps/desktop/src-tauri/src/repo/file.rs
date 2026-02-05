@@ -4,10 +4,7 @@ use git2::Repository;
 use serde::Serialize;
 use tauri::command;
 
-use crate::{
-    repo::error::{Error, Result},
-    utils::store_helper::get_last_opened_repo_path,
-};
+use crate::{repo::error::Error, repo::error::Result, repo::open_repo};
 
 #[derive(Serialize)]
 pub struct DiffState {
@@ -17,12 +14,12 @@ pub struct DiffState {
 
 #[command]
 pub fn get_file_diff(path: String, app: tauri::AppHandle) -> Result<DiffState> {
-    // set the repo with the path
-    let repo_json = get_last_opened_repo_path(app.clone())?;
-    let repo_path = repo_json.as_str().unwrap_or("");
-    let repo = Repository::open(repo_path).map_err(|e| Error::RepoOpeningError(e.to_string()))?;
+    let repo = open_repo(app.clone(), None)?;
+    let repo_root = repo.workdir().ok_or(Error::RepoOpeningError(
+        "Repository working directory unavailable".to_string(),
+    ))?;
 
-    let full_path = Path::new(repo_path).join(&path);
+    let full_path = repo_root.join(&path);
     let new_content = fs::read_to_string(full_path).unwrap_or(String::from(""));
 
     let old_content = get_file_content_from_head(&repo, &path).unwrap_or(String::from(""));

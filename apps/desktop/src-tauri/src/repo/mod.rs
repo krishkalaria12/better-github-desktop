@@ -11,6 +11,7 @@ use crate::{
     utils::store_helper::get_last_opened_repo_path,
 };
 
+use git2::Repository;
 use serde_json::json;
 use std::path::Path;
 use tauri::command;
@@ -33,6 +34,48 @@ pub(crate) fn save_repos_in_store(folder_path: String, app: AppHandle) -> Result
 
     store.save().map_err(|e| Error::StoreError(e.to_string()))?;
     Ok(())
+}
+
+pub(crate) fn open_repo(app: AppHandle, repo_path: Option<String>) -> Result<Repository> {
+    let repo_json = get_last_opened_repo_path(app.clone())?;
+    let stored_path = repo_json.as_str().unwrap_or("").trim().to_string();
+    let provided_path = repo_path.and_then(|path| {
+        let trimmed = path.trim().to_string();
+        if trimmed.is_empty() {
+            None
+        } else {
+            Some(trimmed)
+        }
+    });
+
+    if let Some(path) = provided_path.clone() {
+        match Repository::open(&path) {
+            Ok(repo) => Ok(repo),
+            Err(_) => {
+                if stored_path.is_empty() || stored_path == path {
+                    Err(Error::RepoOpeningError(format!(
+                        "Failed to open repository at {}",
+                        path
+                    )))
+                } else {
+                    Repository::open(&stored_path).map_err(|_| {
+                        Error::RepoOpeningError(format!(
+                            "Failed to open repository at {} or {}",
+                            path, stored_path
+                        ))
+                    })
+                }
+            }
+        }
+    } else if !stored_path.is_empty() {
+        Repository::open(&stored_path).map_err(|_| {
+            Error::RepoOpeningError(format!("Failed to open repository at {}", stored_path))
+        })
+    } else {
+        Err(Error::RepoOpeningError(
+            "No repository path available".to_string(),
+        ))
+    }
 }
 
 #[command]

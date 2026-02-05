@@ -1,11 +1,9 @@
 use chrono::{DateTime, FixedOffset};
-use git2::{Parents, Repository, Sort, Time};
+use git2::{Parents, Sort, Time};
 use serde::Serialize;
 use tauri::{command, AppHandle};
 
-use crate::{
-    repo::error::Error, repo::error::Result, utils::store_helper::get_last_opened_repo_path,
-};
+use crate::{repo::error::Result, repo::open_repo};
 
 #[derive(Serialize)]
 pub struct CommitInfo {
@@ -24,44 +22,7 @@ pub fn get_commits(
     page_size: usize,
     repo_path: Option<String>,
 ) -> Result<Vec<CommitInfo>> {
-    let repo_json = get_last_opened_repo_path(app.clone())?;
-    let stored_path = repo_json.as_str().unwrap_or("").trim().to_string();
-    let provided_path = repo_path.and_then(|path| {
-        let trimmed = path.trim().to_string();
-        if trimmed.is_empty() {
-            None
-        } else {
-            Some(trimmed)
-        }
-    });
-
-    let repo = if let Some(path) = provided_path.clone() {
-        match Repository::open(&path) {
-            Ok(repo) => repo,
-            Err(_) => {
-                if stored_path.is_empty() || stored_path == path {
-                    return Err(Error::RepoOpeningError(format!(
-                        "Failed to open repository at {}",
-                        path
-                    )));
-                }
-                Repository::open(&stored_path).map_err(|_| {
-                    Error::RepoOpeningError(format!(
-                        "Failed to open repository at {} or {}",
-                        path, stored_path
-                    ))
-                })?
-            }
-        }
-    } else if !stored_path.is_empty() {
-        Repository::open(&stored_path).map_err(|_| {
-            Error::RepoOpeningError(format!("Failed to open repository at {}", stored_path))
-        })?
-    } else {
-        return Err(Error::RepoOpeningError(
-            "No repository path available".to_string(),
-        ));
-    };
+    let repo = open_repo(app.clone(), repo_path)?;
 
     let mut revwalk = repo.revwalk()?;
     revwalk.push_head()?;
