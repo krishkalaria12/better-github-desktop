@@ -16,5 +16,9 @@ pub fn get_handler() -> impl Fn(Invoke) -> bool {
         repo::file::get_file_diff_by_commit,
         repo::status::get_repo_changes_from_commit,
         repo::staging::stage_file,
+        repo::staging::stage_all_files,
+        repo::staging::unstage_file,
+        repo::staging::unstage_all_files,
+        repo::commit::commit
     ]
 }

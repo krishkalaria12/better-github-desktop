@@ -77,3 +77,40 @@ fn get_parents(parents: Parents) -> Vec<String> {
 
     all_parents
 }
+
+#[command]
+pub fn commit(app: AppHandle, repo_path: Option<String>, message: String) -> Result<String> {
+    // get the index and write it
+    let repo = open_repo(app.clone(), repo_path)?;
+    let mut index = repo.index()?;
+
+    let tree_oid = index.write_tree()?;
+    let tree = repo.find_tree(tree_oid)?;
+
+    // Get the parent
+    let signature = repo.signature()?;
+    let head = repo.head();
+
+    let parent_commit = match head {
+        Ok(head) => Some(head.peel_to_commit()?),
+        Err(_) => None,
+    };
+
+    let parents = if let Some(ref commit) = parent_commit {
+        vec![commit]
+    } else {
+        vec![]
+    };
+
+    // commit the changes
+    let commit_id = repo.commit(
+        Some("HEAD"),
+        &signature,
+        &signature,
+        &message,
+        &tree,
+        &parents,
+    )?;
+
+    Ok(commit_id.to_string())
+}

@@ -13,8 +13,7 @@ pub fn stage_file(app: AppHandle, file_path: String, repo_path: Option<String>) 
     let repo = open_repo(app.clone(), repo_path)?;
     let mut index = repo.index()?;
 
-    let path = Path::new(&file_path);
-    index.add_path(path)?;
+    index.add_all([file_path], IndexAddOption::DEFAULT, None)?;
 
     index.write()?;
 
