@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { commitChange, getRepoChangesFromCommit } from "../api/tuari-commit-api";
 
 export function useCommitChanges(commitId?: string, repoPath?: string) {
@@ -10,10 +10,19 @@ export function useCommitChanges(commitId?: string, repoPath?: string) {
 }
 
 export function useCommit() {
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: async (message: string) => {
-      const response = await commitChange(message);
+    mutationFn: async (payload: { message: string; repoPath?: string }) => {
+      const response = await commitChange(payload.message, payload.repoPath);
       return response;
     },
-  })
+    onSuccess: async (_data, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["repo-changes", variables.repoPath] }),
+        queryClient.invalidateQueries({ queryKey: ["commit-history", variables.repoPath] }),
+        queryClient.invalidateQueries({ queryKey: ["diff-changes"] }),
+      ]);
+    },
+  });
 }

@@ -20,7 +20,7 @@ export function useRepoChangeByCommit(commit_id: string, repo_path?: string) {
 export function useFileDiffByCommit(commit_id: string, file_path?: string) {
   return useQuery({
     queryKey: ["commit-history", file_path, commit_id],
-    queryFn: () => getFileDiffByCommit(commit_id, file_path),
+    queryFn: () => getFileDiffByCommit(commit_id, file_path ?? ""),
     enabled: !!file_path && !!commit_id,
   });
 }

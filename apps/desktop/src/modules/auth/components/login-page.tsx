@@ -39,7 +39,7 @@ export default function LoginPage() {
   useEffect(() => {
     if (pollData?.access_token) {
       void setToken(pollData.access_token);
-      navigate({ to: "/choosegitclient" });
+      navigate({ to: "/" });
     } else if (pollData?.error && pollData?.error !== "authorization_pending" && pollData?.error !== "slow_down") {
       setStep("init");
     }
@@ -61,7 +61,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!isLoading && token) {
-      navigate({ to: "/choosegitclient" });
+      navigate({ to: "/" });
     }
   }, [isLoading, token, navigate]);
 
@@ -150,7 +150,7 @@ export default function LoginPage() {
                     onClick={async () => {
                       if (!manualToken.trim()) return;
                       await setToken(manualToken.trim());
-                      navigate({ to: "/choosegitclient" });
+                      navigate({ to: "/" });
                     }}
                     variant="secondary"
                     className="h-12 w-full text-sm font-semibold"

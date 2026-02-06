@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use git2::Commit;
 use git2::ErrorCode;
 use git2::IndexAddOption;

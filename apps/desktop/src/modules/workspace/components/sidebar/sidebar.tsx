@@ -52,6 +52,7 @@ export function WorkspaceSidebar({
 
         <TabsContent value="changes" className="mt-0 flex min-h-0 flex-1 flex-col">
           <ChangesList
+            repoPath={repoPath}
             changes={changes}
             isLoading={isLoading}
             isError={isError}

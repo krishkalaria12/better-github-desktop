@@ -42,8 +42,9 @@ export async function getRepoChangesFromCommit(commitId: string, repoPath?: stri
   })
 }
 
-export async function commitChange(message: string): Promise<string> {
+export async function commitChange(message: string, repoPath?: string): Promise<string> {
   return await invoke("commit", {
-    message
+    message,
+    repo_path: repoPath,
   })
 }
