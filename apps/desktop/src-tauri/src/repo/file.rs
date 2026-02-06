@@ -1,6 +1,6 @@
 use std::{fs, path::Path, str::from_utf8};
 
-use git2::{DiffOptions, Oid, Repository, Tree};
+use git2::{Oid, Repository, Tree};
 use serde::Serialize;
 use tauri::{command, AppHandle};
 

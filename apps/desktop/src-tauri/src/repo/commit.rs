@@ -64,7 +64,7 @@ fn convert_date(time: Time) -> String {
 
     let local_time = utc_time.with_timezone(&offset);
 
-    local_time.format("%b %d, %Y").to_string()
+    local_time.to_rfc3339()
 }
 
 fn get_parents(parents: Parents) -> Vec<String> {

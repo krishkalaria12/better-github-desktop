@@ -6,33 +6,37 @@ interface WorkspaceShellProps {
   repoPath: string;
 }
 
-const getRepoLabel = (repoPath: string) => {
-  if (!repoPath) {
-    return "workspace";
-  }
-  const trimmed = repoPath.replace(/[\\/]+$/, "");
-  const lastSegment = trimmed.split(/[\\/]/).filter(Boolean).pop();
-  return lastSegment ?? "workspace";
-};
-
 export function WorkspaceShell({ repoPath }: WorkspaceShellProps) {
-  const repoLabel = getRepoLabel(repoPath);
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"changes" | "history">("changes");
+  const [selectedCommitId, setSelectedCommitId] = useState<string | null>(null);
+  const [selectedCommitFile, setSelectedCommitFile] = useState<string | null>(null);
+
+  const handleSelectCommit = (commitId: string) => {
+    setSelectedCommitId(commitId);
+    setSelectedCommitFile(null);
+  };
 
   return (
-    <div className="relative min-h-screen bg-background text-foreground">
+    <div className="relative h-full w-full overflow-hidden bg-background text-foreground">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-primary/5 via-background to-background" />
-      <div className="relative flex min-h-screen w-full">
+      <div className="relative flex h-full min-h-0 w-full">
         <WorkspaceSidebar
-          repoLabel={repoLabel}
           repoPath={repoPath}
           selectedPath={selectedPath}
           onSelectPath={setSelectedPath}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          selectedCommitId={selectedCommitId}
+          selectedCommitFile={selectedCommitFile}
+          onSelectCommit={handleSelectCommit}
+          onSelectCommitFile={setSelectedCommitFile}
         />
         <WorkspaceMain
-          repoLabel={repoLabel}
-          repoPath={repoPath}
           selectedPath={selectedPath}
+          activeTab={activeTab}
+          selectedCommitId={selectedCommitId}
+          selectedCommitFile={selectedCommitFile}
         />
       </div>
     </div>

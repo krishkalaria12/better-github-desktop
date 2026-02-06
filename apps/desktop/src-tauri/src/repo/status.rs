@@ -1,5 +1,5 @@
 use crate::{
-    repo::error::{Error, Result},
+    repo::error::{Result},
     repo::open_repo,
 };
 use git2::{Oid, Status, StatusOptions};

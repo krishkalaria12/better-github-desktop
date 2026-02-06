@@ -14,26 +14,26 @@ export function DiffViewer({ filePath, diffs }: DiffViewerProps) {
 
   if (!filePath) {
     return (
-      <div className="rounded-xl border border-dashed border-border/60 bg-muted/20 px-6 py-10 text-sm text-muted-foreground">
-        Select a file from the sidebar to preview its diff.
+      <div className="rounded-lg border border-dashed border-border/60 bg-muted/20 px-6 py-12 text-sm text-muted-foreground">
+        Select a file from the changes list to preview its diff.
       </div>
     );
   }
 
   if (diffItems.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-border/60 bg-muted/20 px-6 py-10 text-sm text-muted-foreground">
+      <div className="rounded-lg border border-dashed border-border/60 bg-muted/20 px-6 py-12 text-sm text-muted-foreground">
         No diff data returned for this file yet.
       </div>
     );
   }
 
   return (
-    <div className="diff-viewer space-y-6">
+    <div className="diff-viewer space-y-4">
       {diffItems.map((diff, index) => (
         <div
           key={`${filePath}-${index}`}
-          className="overflow-hidden rounded-xl border border-border/60 bg-background"
+          className="overflow-hidden rounded-lg border border-border/60 bg-background/90"
         >
           <MultiFileDiff
             oldFile={{ name: filePath, contents: diff.old_content }}
