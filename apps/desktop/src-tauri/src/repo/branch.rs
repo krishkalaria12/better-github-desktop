@@ -44,3 +44,33 @@ pub fn list_branches(app: AppHandle) -> Result<Vec<BranchInfo>> {
 
     Ok(all_branches)
 }
+
+#[command]
+pub fn create_branch(app: AppHandle, repo_path: Option<String>, branch_name: String) -> Result<()> {
+    let repo = open_repo(app.clone(), repo_path)?;
+
+    let head = repo.head()?;
+    let commit = head.peel_to_commit()?;
+
+    repo.branch(&branch_name, &commit, false)?;
+
+    Ok(())
+}
+
+#[command]
+pub fn checkout_branch(
+    app: AppHandle,
+    repo_path: Option<String>,
+    branch_name: String,
+) -> Result<()> {
+    let repo = open_repo(app.clone(), repo_path.clone())?;
+
+    let ref_name = format!("refs/heads/{}", branch_name);
+
+    let obj = repo.revparse_single(&ref_name)?;
+
+    repo.checkout_tree(&obj, None)?;
+    repo.set_head(&ref_name)?;
+
+    Ok(())
+}

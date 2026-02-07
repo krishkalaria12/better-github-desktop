@@ -1,8 +1,8 @@
-import { Folder, GitBranch, RefreshCw } from "lucide-react";
+import { Folder, RefreshCw } from "lucide-react";
 
+import { BranchManager } from "@/modules/branches/components/branch-manager";
 import { useGetBranches } from "@/modules/branches/hooks/use-get-branch";
 import { useAuthStore } from "@/store/github-client";
-import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { ModeToggle } from "./mode-toggle";
 
@@ -37,12 +37,11 @@ export default function Header() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Badge variant="secondary" className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em]">
-            <GitBranch className="h-3 w-3" />
-            {isRepoSelected ? currentBranch : "no branch"}
-          </Badge>
-        </div>
+        <BranchManager
+          repoPath={last_opened_repo}
+          currentBranch={currentBranch}
+          isRepoSelected={isRepoSelected}
+        />
 
         <div className="ml-auto flex items-center gap-2">
           <Button variant="secondary" size="sm" className="h-8" disabled={!isRepoSelected}>

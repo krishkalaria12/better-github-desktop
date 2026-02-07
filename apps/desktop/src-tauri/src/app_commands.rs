@@ -19,6 +19,8 @@ pub fn get_handler() -> impl Fn(Invoke) -> bool {
         repo::staging::stage_all_files,
         repo::staging::unstage_file,
         repo::staging::unstage_all_files,
-        repo::commit::commit
+        repo::commit::commit,
+        repo::branch::create_branch,
+        repo::branch::checkout_branch
     ]
 }
