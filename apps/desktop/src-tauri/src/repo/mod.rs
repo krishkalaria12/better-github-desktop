@@ -3,6 +3,7 @@ pub mod clone;
 pub mod commit;
 pub mod error;
 pub mod file;
+pub mod remote;
 pub mod staging;
 pub mod status;
 

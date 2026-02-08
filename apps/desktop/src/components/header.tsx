@@ -1,8 +1,10 @@
-import { Folder, RefreshCw } from "lucide-react";
+import { Folder, Loader2, RefreshCw } from "lucide-react";
 
 import { BranchManager } from "@/modules/branches/components/branch-manager";
 import { useGetBranches } from "@/modules/branches/hooks/use-get-branch";
+import { useFetchOrigin } from "@/modules/repo/hooks/use-tauri-repo";
 import { useAuthStore } from "@/store/github-client";
+import { toast } from "sonner";
 import { Button } from "./ui/button";
 import { ModeToggle } from "./mode-toggle";
 
@@ -16,13 +18,36 @@ const getRepoLabel = (repoPath: string | null) => {
 };
 
 export default function Header() {
-  const { last_opened_repo } = useAuthStore();
+  const { last_opened_repo, token } = useAuthStore();
   const { data } = useGetBranches({ enabled: Boolean(last_opened_repo) });
+  const fetchOriginMutation = useFetchOrigin();
   const branches = Array.isArray(data) ? data : data ? [data] : [];
   const currentBranch = branches.find((branch) => branch.is_head)?.name ?? branches[0]?.name ?? "main";
   const repoLabel = getRepoLabel(last_opened_repo);
   const repoPath = last_opened_repo ?? "No repository selected";
   const isRepoSelected = Boolean(last_opened_repo);
+
+  const handleFetchOrigin = () => {
+    if (!last_opened_repo) {
+      return;
+    }
+
+    fetchOriginMutation.mutate(
+      {
+        repoPath: last_opened_repo,
+        token,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Fetched latest origin refs");
+        },
+        onError: (error) => {
+          const message = error instanceof Error ? error.message : "Failed to fetch from origin";
+          toast.error(message);
+        },
+      }
+    );
+  };
 
   return (
     <header className="border-b border-border/60 bg-background/80 backdrop-blur">
@@ -44,8 +69,18 @@ export default function Header() {
         />
 
         <div className="ml-auto flex items-center gap-2">
-          <Button variant="secondary" size="sm" className="h-8" disabled={!isRepoSelected}>
-            <RefreshCw className="mr-2 h-3.5 w-3.5" />
+          <Button
+            variant="secondary"
+            size="sm"
+            className="h-8"
+            disabled={!isRepoSelected || fetchOriginMutation.isPending}
+            onClick={handleFetchOrigin}
+          >
+            {fetchOriginMutation.isPending ? (
+              <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <RefreshCw className="mr-2 h-3.5 w-3.5" />
+            )}
             Fetch origin
           </Button>
           <ModeToggle />
