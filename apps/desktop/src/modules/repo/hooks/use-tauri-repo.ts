@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { checkIsGitRepo, fetchOrigin } from "../api/tauri-repo-api";
+import { checkIsGitRepo, fetchRepo } from "../api/tauri-repo-api";
 
 export function useCheckGitFolder() {
   return useMutation({
@@ -10,12 +10,12 @@ export function useCheckGitFolder() {
   });
 }
 
-export function useFetchOrigin() {
+export function useFetchRepo() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (payload: { repoPath?: string | null; token?: string | null }) => {
-      return await fetchOrigin(payload.repoPath, payload.token);
+      return await fetchRepo(payload.repoPath, payload.token);
     },
     onSuccess: async (_data, variables) => {
       await Promise.all([

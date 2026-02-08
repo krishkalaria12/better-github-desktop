@@ -22,11 +22,7 @@ pub fn list_remote_branches(app: AppHandle, repo_path: Option<String>) -> Result
 }
 
 #[command]
-pub fn fetch_origin(
-    app: AppHandle,
-    repo_path: Option<String>,
-    token: Option<String>,
-) -> Result<()> {
+pub fn fetch_repo(app: AppHandle, repo_path: Option<String>, token: Option<String>) -> Result<()> {
     let repo = open_repo(app.clone(), repo_path)?;
     let mut remote = repo.find_remote("origin")?;
 

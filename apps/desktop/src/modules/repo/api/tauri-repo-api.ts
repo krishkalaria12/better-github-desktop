@@ -12,8 +12,8 @@ export async function cloneRepo(url: string, filePath: string): Promise<void> {
   await invoke("clone_repo", { url, filePath });
 }
 
-export async function fetchOrigin(repoPath?: string | null, token?: string | null): Promise<void> {
-  await invoke("fetch_origin", {
+export async function fetchRepo(repoPath?: string | null, token?: string | null): Promise<void> {
+  await invoke("fetch_repo", {
     repo_path: repoPath,
     token,
   });

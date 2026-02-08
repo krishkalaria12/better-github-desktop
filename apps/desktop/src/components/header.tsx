@@ -2,7 +2,7 @@ import { Folder, Loader2, RefreshCw } from "lucide-react";
 
 import { BranchManager } from "@/modules/branches/components/branch-manager";
 import { useGetBranches } from "@/modules/branches/hooks/use-get-branch";
-import { useFetchOrigin } from "@/modules/repo/hooks/use-tauri-repo";
+import { useFetchRepo } from "@/modules/repo/hooks/use-tauri-repo";
 import { useAuthStore } from "@/store/github-client";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
@@ -20,19 +20,19 @@ const getRepoLabel = (repoPath: string | null) => {
 export default function Header() {
   const { last_opened_repo, token } = useAuthStore();
   const { data } = useGetBranches({ enabled: Boolean(last_opened_repo) });
-  const fetchOriginMutation = useFetchOrigin();
+  const fetchRepoMutation = useFetchRepo();
   const branches = Array.isArray(data) ? data : data ? [data] : [];
   const currentBranch = branches.find((branch) => branch.is_head)?.name ?? branches[0]?.name ?? "main";
   const repoLabel = getRepoLabel(last_opened_repo);
   const repoPath = last_opened_repo ?? "No repository selected";
   const isRepoSelected = Boolean(last_opened_repo);
 
-  const handleFetchOrigin = () => {
+  const handleFetchRepo = () => {
     if (!last_opened_repo) {
       return;
     }
 
-    fetchOriginMutation.mutate(
+    fetchRepoMutation.mutate(
       {
         repoPath: last_opened_repo,
         token,
@@ -73,10 +73,10 @@ export default function Header() {
             variant="secondary"
             size="sm"
             className="h-8"
-            disabled={!isRepoSelected || fetchOriginMutation.isPending}
-            onClick={handleFetchOrigin}
+            disabled={!isRepoSelected || fetchRepoMutation.isPending}
+            onClick={handleFetchRepo}
           >
-            {fetchOriginMutation.isPending ? (
+            {fetchRepoMutation.isPending ? (
               <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
             ) : (
               <RefreshCw className="mr-2 h-3.5 w-3.5" />
