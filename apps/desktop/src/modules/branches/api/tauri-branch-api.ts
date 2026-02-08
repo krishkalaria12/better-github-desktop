@@ -11,6 +11,14 @@ export interface BranchType {
   is_head: boolean,
 }
 
+export type MergeAnalysisKind = "up_to_date" | "fast_forward" | "normal_merge";
+
+export interface MergeAnalysisResult {
+  analysis: MergeAnalysisKind;
+  source_branch: string;
+  target_branch: string;
+}
+
 export async function getBranches(): Promise<BranchType[]> {
   return await invoke("list_branches");
 }
@@ -27,4 +35,12 @@ export async function checkoutBranch(branchName: string, repoPath?: string) {
     repo_path: repoPath,
     branch_name: branchName
   })
+}
+
+export async function analyzeMerge(sourceBranch: string, targetBranch: string, repoPath?: string) {
+  return await invoke<MergeAnalysisResult>("merge_analysis", {
+    repo_path: repoPath,
+    source_branch: sourceBranch,
+    target_branch: targetBranch,
+  });
 }

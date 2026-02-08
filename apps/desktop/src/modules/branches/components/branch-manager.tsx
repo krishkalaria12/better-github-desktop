@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,11 +10,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { BranchType } from "@/modules/branches/api/tauri-branch-api";
+import type { BranchType, MergeAnalysisResult } from "@/modules/branches/api/tauri-branch-api";
 import {
   useCheckoutBranch,
   useCreateBranch,
   useGetBranches,
+  useMergeAnalysis,
 } from "@/modules/branches/hooks/use-get-branch";
 import { Check, GitBranch, Loader2, Plus, Search } from "lucide-react";
 import { toast } from "sonner";
@@ -42,10 +43,13 @@ export function BranchManager({ repoPath, currentBranch, isRepoSelected }: Branc
   const [newBranchName, setNewBranchName] = useState("");
   const [search, setSearch] = useState("");
   const [checkoutAfterCreate, setCheckoutAfterCreate] = useState(true);
+  const [mergeSourceBranch, setMergeSourceBranch] = useState("");
+  const [mergeAnalysis, setMergeAnalysis] = useState<MergeAnalysisResult | null>(null);
 
   const { data, isLoading } = useGetBranches({ enabled: isRepoSelected });
   const createBranchMutation = useCreateBranch();
   const checkoutBranchMutation = useCheckoutBranch();
+  const mergeAnalysisMutation = useMergeAnalysis();
 
   const branches = useMemo(() => {
     const raw = data as BranchType[] | BranchType | undefined;
@@ -65,6 +69,21 @@ export function BranchManager({ repoPath, currentBranch, isRepoSelected }: Branc
   }, [data, search]);
 
   const isMutating = createBranchMutation.isPending || checkoutBranchMutation.isPending;
+  const localMergeCandidates = branches.filter(
+    (branch) => isLocalBranch(branch.type_of) && !branch.is_head
+  );
+
+  useEffect(() => {
+    if (!localMergeCandidates.length) {
+      setMergeSourceBranch("");
+      return;
+    }
+
+    const branchStillExists = localMergeCandidates.some((branch) => branch.name === mergeSourceBranch);
+    if (!branchStillExists) {
+      setMergeSourceBranch(localMergeCandidates[0]?.name ?? "");
+    }
+  }, [localMergeCandidates, mergeSourceBranch]);
 
   const handleCheckout = (branchName: string) => {
     if (!repoPath || branchName === currentBranch) {
@@ -108,6 +127,38 @@ export function BranchManager({ repoPath, currentBranch, isRepoSelected }: Branc
       }
     );
   };
+
+  const handleMergeAnalysis = () => {
+    if (!repoPath || !mergeSourceBranch) {
+      return;
+    }
+
+    mergeAnalysisMutation.mutate(
+      {
+        sourceBranch: mergeSourceBranch,
+        targetBranch: currentBranch,
+        repoPath,
+      },
+      {
+        onSuccess: (result) => {
+          setMergeAnalysis(result);
+        },
+        onError: (error) => {
+          const message = error instanceof Error ? error.message : "Unable to analyze merge";
+          toast.error(message);
+        },
+      }
+    );
+  };
+
+  const analysisLabel =
+    mergeAnalysis?.analysis === "fast_forward"
+      ? "Fast-forward"
+      : mergeAnalysis?.analysis === "normal_merge"
+        ? "Merge commit"
+        : mergeAnalysis?.analysis === "up_to_date"
+          ? "Up-to-date"
+          : "Not analyzed";
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -157,6 +208,44 @@ export function BranchManager({ repoPath, currentBranch, isRepoSelected }: Branc
             />
             Checkout after create
           </label>
+
+          <div className="rounded-lg border border-border/60 bg-muted/20 p-3">
+            <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">merge analysis</p>
+            <div className="mt-2 flex gap-2">
+              <select
+                value={mergeSourceBranch}
+                onChange={(event) => setMergeSourceBranch(event.target.value)}
+                disabled={!localMergeCandidates.length || mergeAnalysisMutation.isPending}
+                className="h-8 flex-1 rounded-none border border-input bg-transparent px-2 text-xs"
+              >
+                {localMergeCandidates.map((branch) => (
+                  <option key={branch.name} value={branch.name}>
+                    {branch.name}
+                  </option>
+                ))}
+              </select>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="h-8 px-3"
+                onClick={handleMergeAnalysis}
+                disabled={!mergeSourceBranch || mergeAnalysisMutation.isPending}
+              >
+                {mergeAnalysisMutation.isPending ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  "Analyze"
+                )}
+              </Button>
+            </div>
+            <div className="mt-2 flex items-center justify-between">
+              <p className="text-xs text-muted-foreground">into {currentBranch}</p>
+              <Badge variant="outline" className="h-5 px-2 text-[10px] uppercase tracking-[0.18em]">
+                {analysisLabel}
+              </Badge>
+            </div>
+          </div>
         </div>
 
         <div className="border-t border-border/60 px-4 py-3">

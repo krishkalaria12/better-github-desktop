@@ -11,6 +11,24 @@ pub struct BranchInfo {
     is_head: bool,
 }
 
+#[derive(Clone, Serialize)]
+pub struct MergeAnalysisResult {
+    analysis: String,
+    source_branch: String,
+    target_branch: String,
+}
+
+fn get_branch_oid(repo: &git2::Repository, branch_name: &str) -> Result<git2::Oid> {
+    let ref_name = format!("refs/heads/{}", branch_name);
+    let reference = repo.find_reference(&ref_name)?;
+    reference.target().ok_or_else(|| {
+        crate::repo::error::Error::RepoOpeningError(format!(
+            "Unable to resolve branch tip for {}",
+            branch_name
+        ))
+    })
+}
+
 #[command]
 pub fn list_branches(app: AppHandle) -> Result<Vec<BranchInfo>> {
     let repo = open_repo(app.clone(), None)?;
@@ -73,4 +91,36 @@ pub fn checkout_branch(
     repo.set_head(&ref_name)?;
 
     Ok(())
+}
+
+#[command]
+pub fn merge_analysis(
+    app: AppHandle,
+    repo_path: Option<String>,
+    source_branch: String,
+    target_branch: String,
+) -> Result<MergeAnalysisResult> {
+    let repo = open_repo(app.clone(), repo_path)?;
+
+    let source_oid = get_branch_oid(&repo, &source_branch)?;
+    let target_oid = get_branch_oid(&repo, &target_branch)?;
+
+    let analysis = if source_oid == target_oid {
+        "up_to_date"
+    } else {
+        let merge_base = repo.merge_base(source_oid, target_oid)?;
+        if merge_base == target_oid {
+            "fast_forward"
+        } else if merge_base == source_oid {
+            "up_to_date"
+        } else {
+            "normal_merge"
+        }
+    };
+
+    Ok(MergeAnalysisResult {
+        analysis: analysis.to_string(),
+        source_branch,
+        target_branch,
+    })
 }
