@@ -1,9 +1,10 @@
 use std::{
     path::Path,
-    sync::{Arc, Mutex},
+    sync::Arc,
 };
 
 use git2::{build::RepoBuilder, FetchOptions, RemoteCallbacks};
+use parking_lot::Mutex;
 use serde::Serialize;
 use tauri::{command, AppHandle, Emitter};
 
@@ -29,7 +30,7 @@ pub async fn clone_repo(url: String, file_path: String, app: AppHandle) -> Resul
         if total > 0 {
             let percent = (current * 100) / total;
 
-            let mut last_percent = progress.lock().unwrap();
+            let mut last_percent = progress.lock();
             if percent > *last_percent {
                 *last_percent = percent;
 

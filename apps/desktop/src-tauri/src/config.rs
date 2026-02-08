@@ -1,14 +1,22 @@
-use std::sync::OnceLock;
+use parking_lot::{const_mutex, Mutex};
 
 use crate::error::Result;
 
 pub fn config() -> &'static Config {
-    static INSTANCE: OnceLock<Config> = OnceLock::new();
+    static INSTANCE: Mutex<Option<&'static Config>> = const_mutex(None);
 
-    INSTANCE.get_or_init(|| {
-        Config::load_the_config()
-            .unwrap_or_else(|ex| panic!("FATAL - WHILE LOADING CONF - Cause: {ex:?}"))
-    })
+    let mut instance = INSTANCE.lock();
+    if let Some(config) = *instance {
+        return config;
+    }
+
+    let config =
+        Box::leak(Box::new(Config::load_the_config().unwrap_or_else(|ex| {
+            panic!("FATAL - WHILE LOADING CONF - Cause: {ex:?}")
+        })));
+
+    *instance = Some(config);
+    config
 }
 
 #[allow(non_snake_case)]

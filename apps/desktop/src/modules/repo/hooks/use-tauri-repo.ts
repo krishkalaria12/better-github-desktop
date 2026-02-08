@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { checkIsGitRepo, fetchRepo } from "../api/tauri-repo-api";
+import { checkIsGitRepo, fetchRepo, pushRepo } from "../api/tauri-repo-api";
 
 export function useCheckGitFolder() {
   return useMutation({
@@ -18,6 +18,24 @@ export function useFetchRepo() {
       return await fetchRepo(payload.repoPath, payload.token);
     },
     onSuccess: async (_data, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["branches"] }),
+        queryClient.invalidateQueries({ queryKey: ["repo-changes"] }),
+        queryClient.invalidateQueries({ queryKey: ["commit-history"] }),
+        queryClient.invalidateQueries({ queryKey: ["diff-changes"] }),
+      ]);
+    },
+  });
+}
+
+export function usePushRepo() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: { repoPath?: string | null; token?: string | null }) => {
+      return await pushRepo(payload.repoPath, payload.token);
+    },
+    onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["branches"] }),
         queryClient.invalidateQueries({ queryKey: ["repo-changes"] }),

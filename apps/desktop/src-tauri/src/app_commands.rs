@@ -22,6 +22,7 @@ pub fn get_handler() -> impl Fn(Invoke) -> bool {
         repo::commit::commit,
         repo::branch::create_branch,
         repo::branch::checkout_branch,
-        repo::remote::fetch_repo
+        repo::remote::fetch_repo,
+        repo::remote::push_repo
     ]
 }

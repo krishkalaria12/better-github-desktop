@@ -83,6 +83,7 @@ dependencies = [
  "git2",
  "keyring",
  "log",
+ "parking_lot",
  "serde",
  "serde_json",
  "tauri",
