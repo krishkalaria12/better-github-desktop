@@ -1,4 +1,4 @@
-use git2::BranchType;
+use git2::{build::CheckoutBuilder, BranchType};
 use serde::Serialize;
 use tauri::{command, AppHandle};
 
@@ -16,6 +16,13 @@ pub struct MergeAnalysisResult {
     analysis: String,
     source_branch: String,
     target_branch: String,
+}
+
+#[derive(Clone, Serialize)]
+pub struct FastForwardResult {
+    source_branch: String,
+    target_branch: String,
+    target_oid: String,
 }
 
 fn get_branch_oid(repo: &git2::Repository, branch_name: &str) -> Result<git2::Oid> {
@@ -122,5 +129,50 @@ pub fn merge_analysis(
         analysis: analysis.to_string(),
         source_branch,
         target_branch,
+    })
+}
+
+#[command]
+pub fn fast_forward(
+    app: AppHandle,
+    repo_path: Option<String>,
+    source_branch: String,
+    target_branch: String,
+) -> Result<FastForwardResult> {
+    let repo = open_repo(app.clone(), repo_path)?;
+
+    let source_oid = get_branch_oid(&repo, &source_branch)?;
+    let target_oid = get_branch_oid(&repo, &target_branch)?;
+    let merge_base = repo.merge_base(source_oid, target_oid)?;
+
+    if merge_base != target_oid {
+        return Err(crate::repo::error::Error::RepoOpeningError(format!(
+            "Fast-forward is not possible from {} into {}",
+            source_branch, target_branch
+        )));
+    }
+
+    let target_ref_name = format!("refs/heads/{}", target_branch);
+    let mut target_ref = repo.find_reference(&target_ref_name)?;
+    target_ref.set_target(source_oid, "fast-forward")?;
+
+    let should_checkout = repo
+        .head()
+        .ok()
+        .and_then(|head| head.shorthand().map(|value| value.to_string()))
+        .map(|head_branch| head_branch == target_branch)
+        .unwrap_or(false);
+
+    if should_checkout {
+        repo.set_head(&target_ref_name)?;
+        let mut checkout_builder = CheckoutBuilder::new();
+        checkout_builder.force();
+        repo.checkout_head(Some(&mut checkout_builder))?;
+    }
+
+    Ok(FastForwardResult {
+        source_branch,
+        target_branch,
+        target_oid: source_oid.to_string(),
     })
 }

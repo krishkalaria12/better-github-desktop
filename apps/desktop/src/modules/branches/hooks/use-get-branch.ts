@@ -1,5 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { analyzeMerge, checkoutBranch, createBranch, getBranches } from "../api/tauri-branch-api";
+import {
+  analyzeMerge,
+  checkoutBranch,
+  createBranch,
+  fastForwardBranch,
+  getBranches,
+} from "../api/tauri-branch-api";
 
 export function useGetBranches(options?: { enabled?: boolean }) {
   return useQuery({
@@ -52,6 +58,28 @@ export function useMergeAnalysis() {
       repoPath?: string;
     }) => {
       return await analyzeMerge(payload.sourceBranch, payload.targetBranch, payload.repoPath);
+    },
+  });
+}
+
+export function useFastForwardMerge() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: {
+      sourceBranch: string;
+      targetBranch: string;
+      repoPath?: string;
+    }) => {
+      return await fastForwardBranch(payload.sourceBranch, payload.targetBranch, payload.repoPath);
+    },
+    onSuccess: async (_data, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["branches"] }),
+        queryClient.invalidateQueries({ queryKey: ["repo-changes", variables.repoPath] }),
+        queryClient.invalidateQueries({ queryKey: ["commit-history", variables.repoPath] }),
+        queryClient.invalidateQueries({ queryKey: ["diff-changes"] }),
+      ]);
     },
   });
 }

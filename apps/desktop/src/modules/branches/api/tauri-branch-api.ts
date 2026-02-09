@@ -19,6 +19,12 @@ export interface MergeAnalysisResult {
   target_branch: string;
 }
 
+export interface FastForwardResult {
+  source_branch: string;
+  target_branch: string;
+  target_oid: string;
+}
+
 export async function getBranches(): Promise<BranchType[]> {
   return await invoke("list_branches");
 }
@@ -39,6 +45,14 @@ export async function checkoutBranch(branchName: string, repoPath?: string) {
 
 export async function analyzeMerge(sourceBranch: string, targetBranch: string, repoPath?: string) {
   return await invoke<MergeAnalysisResult>("merge_analysis", {
+    repo_path: repoPath,
+    source_branch: sourceBranch,
+    target_branch: targetBranch,
+  });
+}
+
+export async function fastForwardBranch(sourceBranch: string, targetBranch: string, repoPath?: string) {
+  return await invoke<FastForwardResult>("fast_forward", {
     repo_path: repoPath,
     source_branch: sourceBranch,
     target_branch: targetBranch,

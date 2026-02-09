@@ -23,6 +23,7 @@ pub fn get_handler() -> impl Fn(Invoke) -> bool {
         repo::branch::create_branch,
         repo::branch::checkout_branch,
         repo::branch::merge_analysis,
+        repo::branch::fast_forward,
         repo::remote::fetch_repo,
         repo::remote::push_repo
     ]

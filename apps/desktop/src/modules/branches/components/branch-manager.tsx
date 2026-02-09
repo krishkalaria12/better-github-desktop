@@ -14,6 +14,7 @@ import type { BranchType, MergeAnalysisResult } from "@/modules/branches/api/tau
 import {
   useCheckoutBranch,
   useCreateBranch,
+  useFastForwardMerge,
   useGetBranches,
   useMergeAnalysis,
 } from "@/modules/branches/hooks/use-get-branch";
@@ -50,6 +51,7 @@ export function BranchManager({ repoPath, currentBranch, isRepoSelected }: Branc
   const createBranchMutation = useCreateBranch();
   const checkoutBranchMutation = useCheckoutBranch();
   const mergeAnalysisMutation = useMergeAnalysis();
+  const fastForwardMutation = useFastForwardMerge();
 
   const branches = useMemo(() => {
     const raw = data as BranchType[] | BranchType | undefined;
@@ -151,6 +153,30 @@ export function BranchManager({ repoPath, currentBranch, isRepoSelected }: Branc
     );
   };
 
+  const handleFastForward = () => {
+    if (!repoPath || !mergeSourceBranch) {
+      return;
+    }
+
+    fastForwardMutation.mutate(
+      {
+        sourceBranch: mergeSourceBranch,
+        targetBranch: currentBranch,
+        repoPath,
+      },
+      {
+        onSuccess: (result) => {
+          toast.success(`Fast-forwarded ${result.target_branch} to ${result.source_branch}`);
+          setMergeAnalysis(null);
+        },
+        onError: (error) => {
+          const message = error instanceof Error ? error.message : "Unable to fast-forward";
+          toast.error(message);
+        },
+      }
+    );
+  };
+
   const analysisLabel =
     mergeAnalysis?.analysis === "fast_forward"
       ? "Fast-forward"
@@ -245,6 +271,21 @@ export function BranchManager({ repoPath, currentBranch, isRepoSelected }: Branc
                 {analysisLabel}
               </Badge>
             </div>
+            {mergeAnalysis?.analysis === "fast_forward" ? (
+              <Button
+                type="button"
+                size="sm"
+                className="mt-2 h-8 w-full"
+                onClick={handleFastForward}
+                disabled={fastForwardMutation.isPending}
+              >
+                {fastForwardMutation.isPending ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  "Apply fast-forward"
+                )}
+              </Button>
+            ) : null}
           </div>
         </div>
 
