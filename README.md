@@ -1,49 +1,70 @@
 # better-github
 
-## Features
+desktop git workspace for managing local repositories with github auth and tauri-native commands.
 
-- **TypeScript** - For type safety and improved developer experience
-- **TanStack Router** - File-based routing with full type safety
-- **TailwindCSS** - Utility-first CSS for rapid UI development
-- **shadcn/ui** - Reusable UI components
-- **Oxlint** - Oxlint + Oxfmt (linting & formatting)
-- **Tauri** - Build native desktop applications
-- **Turborepo** - Optimized monorepo build system
+![better-github app preview](apps/desktop/src/assets/app-preview.png)
 
-## Getting Started
+## what you can do
 
-First, install the dependencies:
+- connect with github device flow or manual token
+- open and track multiple local repos in one app session
+- switch active repo from the header repo picker
+- remove a repo from the viewed list with confirmation
+- inspect file changes, diffs, and commit history
+- stage/unstage changes, commit, branch, merge, fetch, and push
+- logout and clear current auth session
+
+## tech stack
+
+- bun workspaces + turborepo
+- react 19 + typescript
+- tanstack router + tanstack query
+- tailwindcss + base-ui + shadcn-style components
+- tauri v2 + rust + git2
+- oxlint + oxfmt
+
+## project structure
+
+```text
+better-github/
+├── apps/
+│   └── desktop/        # tauri desktop app (react frontend + rust backend)
+└── packages/
+    ├── config/         # shared tsconfig and tooling presets
+    └── env/            # shared env parsing/helpers
+```
+
+## getting started
 
 ```bash
 bun install
 ```
 
-Then, run the development server:
+run all workspace dev pipelines:
 
 ```bash
 bun run dev
 ```
 
-Open [http://localhost:3001](http://localhost:3001) in your browser to see the web application.
+run desktop app only:
 
-## Git Hooks and Formatting
-
-- Format and lint fix: `bun run check`
-
-## Project Structure
-
-```
-better-github/
-├── apps/
-│   ├── web/         # Frontend application (React + TanStack Router)
+```bash
+cd apps/desktop
+bun run desktop:dev
 ```
 
-## Available Scripts
+## scripts
 
-- `bun run dev`: Start all applications in development mode
-- `bun run build`: Build all applications
-- `bun run dev:web`: Start only the web application
-- `bun run check-types`: Check TypeScript types across all apps
-- `bun run check`: Run Oxlint and Oxfmt
-- `cd apps/web && bun run desktop:dev`: Start Tauri desktop app in development
-- `cd apps/web && bun run desktop:build`: Build Tauri desktop app
+from repo root:
+
+- `bun run dev` - run turbo dev pipelines
+- `bun run build` - run workspace builds
+- `bun run check-types` - run type checks across workspaces
+- `bun run check` - run oxlint and format with oxfmt
+
+from `apps/desktop`:
+
+- `bun run dev` - run vite frontend dev server
+- `bun run desktop:dev` - run tauri desktop app in development
+- `bun run desktop:build` - build production desktop binaries
+- `bun run check-types` - type-check desktop app
