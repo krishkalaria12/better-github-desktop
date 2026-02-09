@@ -17,6 +17,7 @@ import {
   useFastForwardMerge,
   useGetBranches,
   useMergeAnalysis,
+  useNormalMerge,
 } from "@/modules/branches/hooks/use-get-branch";
 import { Check, GitBranch, Loader2, Plus, Search } from "lucide-react";
 import { toast } from "sonner";
@@ -52,6 +53,7 @@ export function BranchManager({ repoPath, currentBranch, isRepoSelected }: Branc
   const checkoutBranchMutation = useCheckoutBranch();
   const mergeAnalysisMutation = useMergeAnalysis();
   const fastForwardMutation = useFastForwardMerge();
+  const normalMergeMutation = useNormalMerge();
 
   const branches = useMemo(() => {
     const raw = data as BranchType[] | BranchType | undefined;
@@ -177,6 +179,30 @@ export function BranchManager({ repoPath, currentBranch, isRepoSelected }: Branc
     );
   };
 
+  const handleNormalMerge = () => {
+    if (!repoPath || !mergeSourceBranch) {
+      return;
+    }
+
+    normalMergeMutation.mutate(
+      {
+        sourceBranch: mergeSourceBranch,
+        targetBranch: currentBranch,
+        repoPath,
+      },
+      {
+        onSuccess: (result) => {
+          toast.success(`Merged ${result.source_branch} into ${result.target_branch}`);
+          setMergeAnalysis(null);
+        },
+        onError: (error) => {
+          const message = error instanceof Error ? error.message : "Unable to create merge commit";
+          toast.error(message);
+        },
+      }
+    );
+  };
+
   const analysisLabel =
     mergeAnalysis?.analysis === "fast_forward"
       ? "Fast-forward"
@@ -283,6 +309,21 @@ export function BranchManager({ repoPath, currentBranch, isRepoSelected }: Branc
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 ) : (
                   "Apply fast-forward"
+                )}
+              </Button>
+            ) : null}
+            {mergeAnalysis?.analysis === "normal_merge" ? (
+              <Button
+                type="button"
+                size="sm"
+                className="mt-2 h-8 w-full"
+                onClick={handleNormalMerge}
+                disabled={normalMergeMutation.isPending}
+              >
+                {normalMergeMutation.isPending ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  "Create merge commit"
                 )}
               </Button>
             ) : null}

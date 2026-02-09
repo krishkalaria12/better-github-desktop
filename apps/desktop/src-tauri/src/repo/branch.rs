@@ -25,6 +25,13 @@ pub struct FastForwardResult {
     target_oid: String,
 }
 
+#[derive(Clone, Serialize)]
+pub struct NormalMergeResult {
+    source_branch: String,
+    target_branch: String,
+    commit_oid: String,
+}
+
 fn get_branch_oid(repo: &git2::Repository, branch_name: &str) -> Result<git2::Oid> {
     let ref_name = format!("refs/heads/{}", branch_name);
     let reference = repo.find_reference(&ref_name)?;
@@ -174,5 +181,80 @@ pub fn fast_forward(
         source_branch,
         target_branch,
         target_oid: source_oid.to_string(),
+    })
+}
+
+#[command]
+pub fn normal_merge(
+    app: AppHandle,
+    repo_path: Option<String>,
+    source_branch: String,
+    target_branch: String,
+) -> Result<NormalMergeResult> {
+    let repo = open_repo(app.clone(), repo_path)?;
+
+    let source_oid = get_branch_oid(&repo, &source_branch)?;
+    let target_oid = get_branch_oid(&repo, &target_branch)?;
+    let merge_base = repo.merge_base(source_oid, target_oid)?;
+
+    if merge_base == source_oid || merge_base == target_oid {
+        return Err(crate::repo::error::Error::RepoOpeningError(
+            "Normal merge is not required for this branch pair".to_string(),
+        ));
+    }
+
+    let source_ref_name = format!("refs/heads/{}", source_branch);
+    let source_ref = repo.find_reference(&source_ref_name)?;
+    let source_annotated = repo.reference_to_annotated_commit(&source_ref)?;
+
+    let mut checkout_builder = CheckoutBuilder::new();
+    checkout_builder.force();
+    repo.merge(&[&source_annotated], None, Some(&mut checkout_builder))?;
+
+    let mut index = repo.index()?;
+    if index.has_conflicts() {
+        repo.cleanup_state()?;
+        return Err(crate::repo::error::Error::RepoOpeningError(
+            "Merge resulted in conflicts. Resolve manually.".to_string(),
+        ));
+    }
+
+    let tree_oid = index.write_tree_to(&repo)?;
+    let tree = repo.find_tree(tree_oid)?;
+
+    let target_commit = repo.find_commit(target_oid)?;
+    let source_commit = repo.find_commit(source_oid)?;
+    let signature = repo.signature()?;
+    let message = format!("merge branch '{}' into '{}'", source_branch, target_branch);
+    let target_ref_name = format!("refs/heads/{}", target_branch);
+
+    let commit_oid = repo.commit(
+        Some(&target_ref_name),
+        &signature,
+        &signature,
+        &message,
+        &tree,
+        &[&target_commit, &source_commit],
+    )?;
+
+    repo.cleanup_state()?;
+
+    let should_checkout = repo
+        .head()
+        .ok()
+        .and_then(|head| head.shorthand().map(|value| value.to_string()))
+        .map(|head_branch| head_branch == target_branch)
+        .unwrap_or(false);
+
+    if should_checkout {
+        let mut post_merge_checkout = CheckoutBuilder::new();
+        post_merge_checkout.force();
+        repo.checkout_head(Some(&mut post_merge_checkout))?;
+    }
+
+    Ok(NormalMergeResult {
+        source_branch,
+        target_branch,
+        commit_oid: commit_oid.to_string(),
     })
 }
