@@ -8,10 +8,10 @@ import {
   normalMergeBranch,
 } from "../api/tauri-branch-api";
 
-export function useGetBranches(options?: { enabled?: boolean }) {
+export function useGetBranches(options?: { enabled?: boolean; repoPath?: string | null }) {
   return useQuery({
-    queryKey: ["branches"],
-    queryFn: getBranches,
+    queryKey: ["branches", options?.repoPath],
+    queryFn: () => getBranches(options?.repoPath ?? undefined),
     enabled: options?.enabled ?? true,
   });
 }

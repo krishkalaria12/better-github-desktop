@@ -48,7 +48,7 @@ export function BranchManager({ repoPath, currentBranch, isRepoSelected }: Branc
   const [mergeSourceBranch, setMergeSourceBranch] = useState("");
   const [mergeAnalysis, setMergeAnalysis] = useState<MergeAnalysisResult | null>(null);
 
-  const { data, isLoading } = useGetBranches({ enabled: isRepoSelected });
+  const { data, isLoading } = useGetBranches({ enabled: isRepoSelected, repoPath });
   const createBranchMutation = useCreateBranch();
   const checkoutBranchMutation = useCheckoutBranch();
   const mergeAnalysisMutation = useMergeAnalysis();

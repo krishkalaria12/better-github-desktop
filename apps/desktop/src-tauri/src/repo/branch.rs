@@ -44,8 +44,8 @@ fn get_branch_oid(repo: &git2::Repository, branch_name: &str) -> Result<git2::Oi
 }
 
 #[command]
-pub fn list_branches(app: AppHandle) -> Result<Vec<BranchInfo>> {
-    let repo = open_repo(app.clone(), None)?;
+pub fn list_branches(app: AppHandle, repo_path: Option<String>) -> Result<Vec<BranchInfo>> {
+    let repo = open_repo(app.clone(), repo_path)?;
 
     let branches = repo.branches(None)?;
 

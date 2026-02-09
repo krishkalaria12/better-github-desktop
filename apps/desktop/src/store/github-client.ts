@@ -1,5 +1,9 @@
 import { deleteMyToken, retrieveMyToken, secureMyToken } from '@/modules/auth/api/tauri-auth-api';
-import { getLastOpenedRepo } from '@/modules/repo/api/tauri-repo-api';
+import {
+  getRepoState,
+  removeRepoFromView,
+  setActiveRepo as setActiveRepoInStore,
+} from '@/modules/repo/api/tauri-repo-api';
 import { create } from 'zustand';
 
 interface AuthState {
@@ -7,11 +11,14 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   last_opened_repo: string | null;
+  opened_repos: string[];
 
   init: () => Promise<void>;
   setToken: (token: string) => Promise<void>;
   logout: () => Promise<void>;
   setLastOpenedRepo: () => Promise<void>;
+  setActiveRepo: (repoPath: string) => Promise<void>;
+  removeRepo: (repoPath: string) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -19,6 +26,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
   isLoading: true,
   last_opened_repo: null,
+  opened_repos: [],
 
   init: async () => {
     try {
@@ -46,7 +54,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: async () => {
     try {
       await deleteMyToken();
-      set({ token: null, isAuthenticated: false });
+      set({ token: null, isAuthenticated: false, last_opened_repo: null, opened_repos: [] });
     } catch (err) {
       console.error("Failed to logout", err);
     }
@@ -54,10 +62,37 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   setLastOpenedRepo: async () => {
     try {
-      const repo_string = await getLastOpenedRepo();
-      set({ last_opened_repo: repo_string });
+      const repoState = await getRepoState();
+      set({
+        last_opened_repo: repoState.active_repo,
+        opened_repos: repoState.repos,
+      });
     } catch (err) {
       console.error("Failed to set last opened repo", err);
     }
-  }
+  },
+
+  setActiveRepo: async (repoPath: string) => {
+    try {
+      const repoState = await setActiveRepoInStore(repoPath);
+      set({
+        last_opened_repo: repoState.active_repo,
+        opened_repos: repoState.repos,
+      });
+    } catch (err) {
+      console.error("Failed to set active repo", err);
+    }
+  },
+
+  removeRepo: async (repoPath: string) => {
+    try {
+      const repoState = await removeRepoFromView(repoPath);
+      set({
+        last_opened_repo: repoState.active_repo,
+        opened_repos: repoState.repos,
+      });
+    } catch (err) {
+      console.error("Failed to remove repo", err);
+    }
+  },
 }));

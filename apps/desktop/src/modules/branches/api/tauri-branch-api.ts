@@ -31,8 +31,10 @@ export interface NormalMergeResult {
   commit_oid: string;
 }
 
-export async function getBranches(): Promise<BranchType[]> {
-  return await invoke("list_branches");
+export async function getBranches(repoPath?: string): Promise<BranchType[]> {
+  return await invoke("list_branches", {
+    repo_path: repoPath,
+  });
 }
 
 export async function createBranch(branchName: string, repoPath?: string) {

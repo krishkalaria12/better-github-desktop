@@ -1,9 +1,21 @@
-import { Folder } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+import { Check, ChevronDown, Folder, LogOut, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import { confirm } from "@tauri-apps/plugin-dialog";
 
 import { BranchManager } from "@/modules/branches/components/branch-manager";
 import { useGetBranches } from "@/modules/branches/hooks/use-get-branch";
 import { RemoteSyncMenu } from "@/modules/repo/components/remote-sync-menu";
 import { useAuthStore } from "@/store/github-client";
+import { Button } from "./ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 import { ModeToggle } from "./mode-toggle";
 
 const getRepoLabel = (repoPath: string | null) => {
@@ -16,13 +28,52 @@ const getRepoLabel = (repoPath: string | null) => {
 };
 
 export default function Header() {
-  const { last_opened_repo, token } = useAuthStore();
-  const { data } = useGetBranches({ enabled: Boolean(last_opened_repo) });
+  const navigate = useNavigate();
+  const { last_opened_repo, opened_repos, token, setActiveRepo, removeRepo, logout } = useAuthStore();
+  const { data } = useGetBranches({
+    enabled: Boolean(last_opened_repo),
+    repoPath: last_opened_repo,
+  });
   const branches = Array.isArray(data) ? data : data ? [data] : [];
   const currentBranch = branches.find((branch) => branch.is_head)?.name ?? branches[0]?.name ?? "main";
   const repoLabel = getRepoLabel(last_opened_repo);
   const repoPath = last_opened_repo ?? "No repository selected";
   const isRepoSelected = Boolean(last_opened_repo);
+
+  const handleSelectRepo = async (repoPathValue: string) => {
+    await setActiveRepo(repoPathValue);
+    toast.success(`Switched to ${getRepoLabel(repoPathValue)}`);
+  };
+
+  const handleRemoveActiveRepo = async () => {
+    if (!last_opened_repo) {
+      return;
+    }
+
+    const shouldRemove = await confirm(
+      "This will remove the current repository from your viewed list. You can add it again later by opening or validating it.",
+      {
+        title: "Remove repository from view?",
+        kind: "warning",
+        okLabel: "Remove",
+        cancelLabel: "Cancel",
+      }
+    );
+
+    if (!shouldRemove) {
+      return;
+    }
+
+    const removedLabel = getRepoLabel(last_opened_repo);
+    await removeRepo(last_opened_repo);
+    toast.success(`Removed ${removedLabel} from viewed repositories`);
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    toast.success("Logged out");
+    navigate({ to: "/login" });
+  };
 
   return (
     <header className="border-b border-border/60 bg-background/80 backdrop-blur">
@@ -37,6 +88,49 @@ export default function Header() {
           </div>
         </div>
 
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button variant="outline" size="sm" className="h-8 gap-2" disabled={!opened_repos.length}>
+                Repos
+                <ChevronDown className="h-3.5 w-3.5" />
+              </Button>
+            }
+          />
+          <DropdownMenuContent align="start" sideOffset={8} className="w-[360px] rounded-md">
+            <DropdownMenuLabel>Viewed repositories</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {opened_repos.length ? (
+              opened_repos.map((openedRepoPath) => (
+                <DropdownMenuItem key={openedRepoPath} onClick={() => void handleSelectRepo(openedRepoPath)}>
+                  <div className="flex w-full min-w-0 items-center gap-2">
+                    <Check
+                      className={`h-3.5 w-3.5 ${
+                        openedRepoPath === last_opened_repo ? "text-foreground" : "text-transparent"
+                      }`}
+                    />
+                    <div className="min-w-0">
+                      <p className="truncate text-xs font-medium text-foreground">{getRepoLabel(openedRepoPath)}</p>
+                      <p className="truncate text-[11px] text-muted-foreground">{openedRepoPath}</p>
+                    </div>
+                  </div>
+                </DropdownMenuItem>
+              ))
+            ) : (
+              <DropdownMenuItem disabled>No repositories yet</DropdownMenuItem>
+            )}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              variant="destructive"
+              disabled={!last_opened_repo}
+              onClick={() => void handleRemoveActiveRepo()}
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Remove current repo from view
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         <BranchManager
           repoPath={last_opened_repo}
           currentBranch={currentBranch}
@@ -50,6 +144,16 @@ export default function Header() {
             currentBranch={currentBranch}
             isRepoSelected={isRepoSelected}
           />
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 gap-2"
+            onClick={() => void handleLogout()}
+            disabled={!token}
+          >
+            <LogOut className="h-3.5 w-3.5" />
+            Logout
+          </Button>
           <ModeToggle />
         </div>
       </div>
