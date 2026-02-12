@@ -11,6 +11,7 @@ import { Button } from "./ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -98,7 +99,9 @@ export default function Header() {
             }
           />
           <DropdownMenuContent align="start" sideOffset={8} className="w-[360px] rounded-md">
-            <DropdownMenuLabel>Viewed repositories</DropdownMenuLabel>
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>Viewed repositories</DropdownMenuLabel>
+            </DropdownMenuGroup>
             <DropdownMenuSeparator />
             {opened_repos.length ? (
               opened_repos.map((openedRepoPath) => (
